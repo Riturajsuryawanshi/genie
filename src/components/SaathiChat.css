@@ -1,0 +1,60 @@
+/* Custom black scrollbar for chat area */
+.custom-black-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #222 #000;
+}
+.custom-black-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  background: #000;
+}
+.custom-black-scrollbar::-webkit-scrollbar-thumb {
+  background: #222;
+  border-radius: 4px;
+}
+.custom-black-scrollbar::-webkit-scrollbar-track {
+  background: #000;
+}
+@keyframes heyyGreeting {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes heyyGreetingBounce {
+  0% {
+    opacity: 0;
+    transform: translateY(-60px) scale(0.8);
+    filter: blur(4px);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(10px) scale(1.15);
+    filter: blur(0);
+  }
+  80% {
+    transform: translateY(-5px) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1.1);
+  }
+}
+.animate-heyy-greeting {
+  animation: heyyGreetingBounce 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  font-size: 2.8rem;
+  font-weight: 900;
+  background: linear-gradient(90deg, #a8edea 0%, #fed6e3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  letter-spacing: 0.04em;
+} 
