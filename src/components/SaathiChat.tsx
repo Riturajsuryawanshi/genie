@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Send, User, Bot, Loader2, Image as ImageIcon, Mic } from 'lucide-react';
+import { Send, User, Bot, Loader2, Image as ImageIcon, Mic, Volume2, VolumeX, Brain } from 'lucide-react';
+import './SaathiChat.css';
 
 // IMPORTANT: Replace this with your real Gemini API key from https://aistudio.google.com/app/apikey
 const GEMINI_API_KEY = "AIzaSyDj70boDeXkCkSaUVWpvn6-mza8ckSk_hw";
@@ -31,6 +32,8 @@ export const SaathiChat: React.FC = () => {
   const [messageBox, setMessageBox] = useState<{ show: boolean; title: string; content: string }>({ show: false, title: '', content: '' });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isMuted, setIsMuted] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // When activeChatId changes, update messages
   useEffect(() => {
@@ -94,6 +97,7 @@ export const SaathiChat: React.FC = () => {
 
   // Speak text using Web Speech API
   const speakText = (text: string) => {
+    if (isMuted) return;
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(text);
       speechSynthesis.speak(utterance);
@@ -218,40 +222,54 @@ export const SaathiChat: React.FC = () => {
 
   return (
     <div className="flex w-full min-h-[80vh] bg-black">
-      {/* Sidebar */}
-      <aside className="w-64 min-w-[200px] max-w-[280px] bg-[#18181b] border-r border-neutral-800 p-4 flex flex-col gap-6">
-        <button className="w-full py-2 mb-4 rounded-lg bg-[#a8edea] text-neutral-900 font-semibold shadow hover:bg-[#b6f0f2] transition" onClick={handleNewChat}>+ New Chat</button>
-        <div>
-          <h2 className="text-lg font-bold mb-2 text-neutral-200">History</h2>
-          <ul className="space-y-2">
-            {chatHistories.map(chat => (
-              <li key={chat.id} className={`p-2 rounded-lg cursor-pointer font-medium transition ${chat.id === activeChatId ? 'bg-[#fed6e3]/80 text-indigo-700' : 'bg-neutral-900/60 hover:bg-[#fed6e3]/60 text-neutral-200'}`} onClick={() => handleSelectChat(chat.id)}>
-                {chat.title}
-              </li>
-            ))}
-          </ul>
+      {/* Collapsible left sidebar: collapsed by default, expands on hover */}
+      <aside
+        className={`h-full transition-all duration-300 ease-in-out ${sidebarOpen ? 'w-64 min-w-[200px] max-w-[280px]' : 'w-16 min-w-[64px]'} bg-black border-r border-neutral-800 flex flex-col items-center py-6 relative`}
+        onMouseEnter={() => setSidebarOpen(true)}
+        onMouseLeave={() => setSidebarOpen(false)}
+      >
+        {/* Saathi Logo at absolute top left */}
+        <div className="absolute top-4 left-1 flex items-center justify-center w-10 h-10">
+          <Brain className="h-8 w-8 text-indigo-400" title="Saathi" />
         </div>
+        {/* Only show content if sidebar is open */}
+        {sidebarOpen && (
+          <>
+            <div className="mt-12" />
+            {/* New Chat Button */}
+            <button className="w-11/12 py-2 mb-4 rounded-lg bg-[#a8edea] text-neutral-900 font-semibold shadow hover:bg-[#b6f0f2] transition" onClick={handleNewChat}>+ New Chat</button>
+            {/* Chat History */}
+            <div className="w-full px-4 flex-1 overflow-y-auto hide-scrollbar">
+              <h2 className="text-lg font-bold mb-2 text-neutral-200">History</h2>
+              <ul className="space-y-2">
+                {chatHistories.map(chat => (
+                  <li key={chat.id} className={`p-2 rounded-lg cursor-pointer font-medium transition ${chat.id === activeChatId ? 'bg-[#fed6e3]/80 text-indigo-700' : 'bg-neutral-900/60 hover:bg-[#fed6e3]/60 text-neutral-200'}`} onClick={() => handleSelectChat(chat.id)}>
+                    {chat.title}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
       </aside>
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col items-center justify-center">
-        {/* User Info Section */}
-        <div className="flex items-center gap-4 p-6 w-full max-w-2xl">
-          {getAvatarUrl() ? (
-            <img src={getAvatarUrl()} alt="avatar" className="w-12 h-12 rounded-full object-cover border-2 border-indigo-500" />
-          ) : (
-            <div className="w-12 h-12 rounded-full bg-indigo-700 flex items-center justify-center text-white text-xl font-bold border-2 border-indigo-500">
-              {getInitials()}
-            </div>
-          )}
-          <div>
-            <div className="font-bold text-lg text-white">{getUserName()}</div>
-            <div className="text-xs text-neutral-400">Welcome to Saathi</div>
-          </div>
+      <div className="flex-1 flex flex-col items-center justify-center relative w-full">
+        {/* Mute/Unmute Button */}
+        <button
+          className="absolute top-4 right-8 z-20 bg-neutral-800 border border-neutral-700 rounded-full p-2 shadow hover:bg-neutral-700 transition"
+          onClick={() => setIsMuted((m) => !m)}
+          title={isMuted ? 'Unmute voice' : 'Mute voice'}
+        >
+          {isMuted ? <VolumeX className="w-6 h-6 text-red-400" /> : <Volume2 className="w-6 h-6 text-indigo-400" />}
+        </button>
+        {/* Heyy, UserName at the top of chat with animation */}
+        <div className="w-full max-w-2xl text-center mt-8 mb-2">
+          <span className="text-2xl font-bold text-white animate-heyy-greeting inline-block">Heyy, {getUserName()}</span>
         </div>
         {/* Chat Container */}
-        <div className="chat-container w-full max-w-2xl bg-neutral-900 rounded-2xl shadow-xl flex flex-col h-[70vh] overflow-hidden">
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
+        <div className="w-full max-w-2xl flex flex-col h-[70vh] bg-black">
+          {/* Messages with vertical scrollbar and custom black scrollbar */}
+          <div className="flex-1 p-6 flex flex-col gap-4 overflow-y-auto custom-black-scrollbar" style={{ minHeight: 0 }}>
             {messages.map((msg, idx) => (
               <div key={msg.id + idx} className={`max-w-[75%] rounded-2xl px-4 py-3 shadow-md ${msg.isUser ? 'bg-indigo-500/80 text-white ml-auto' : 'bg-neutral-800/80 text-neutral-100 mr-auto'} relative`}>
                 <div className="flex items-center gap-2 mb-1">
@@ -269,6 +287,19 @@ export const SaathiChat: React.FC = () => {
                 <span className="text-xs opacity-40 mt-2 block text-right">{msg.timestamp.toLocaleTimeString()}</span>
               </div>
             ))}
+            {/* Thinking animation when loading */}
+            {loading && (
+              <div className="max-w-[75%] rounded-2xl px-4 py-3 shadow-md bg-neutral-800/80 text-neutral-100 mr-auto relative flex items-center gap-2">
+                <Bot className="h-4 w-4 text-indigo-400" />
+                <span className="text-xs opacity-60">SAATHI</span>
+                <span className="ml-2 flex gap-1">
+                  <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></span>
+                  <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }}></span>
+                  <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }}></span>
+                </span>
+                <span className="text-xs opacity-40 mt-2 block text-right">Thinking...</span>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
           {/* Image Preview */}
@@ -280,7 +311,7 @@ export const SaathiChat: React.FC = () => {
             </div>
           )}
           {/* Input Area */}
-          <div className="flex items-center gap-2 p-4 border-t border-neutral-800 bg-neutral-900">
+          <div className="flex items-center gap-2 p-0 mt-2">
             <input
               type="file"
               accept="image/*"
