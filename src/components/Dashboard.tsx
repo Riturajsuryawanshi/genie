@@ -165,6 +165,13 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
             <Star className="h-32 w-32 text-white" />
           </div>
         </div>
+        {/* Prominent Logout Button */}
+        <div className="flex justify-center mb-8">
+          <Button variant="destructive" size="lg" className="px-8 py-3 text-lg font-semibold flex items-center gap-2" onClick={handleSignOut}>
+            <LogOut className="h-5 w-5" />
+            Logout
+          </Button>
+        </div>
         {/* Quick Actions */}
         <div className="mb-8 flex flex-wrap gap-4 justify-center">
           <Button className="bg-gradient-to-r from-indigo-500 to-rose-500 text-white px-6 py-3 rounded-xl shadow hover:scale-105 transition-all text-lg" onClick={() => setShowCallingAgent(true)}>
