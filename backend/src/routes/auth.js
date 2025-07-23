@@ -8,7 +8,10 @@ router.get('/health', (req, res) => res.json({ success: true, route: 'auth' }));
 // POST /auth/onboard - onboard a new user
 router.post('/onboard', async (req, res) => {
   try {
-    const { userId, email, fullName } = req.body;
+    // Accept both user_id and userId, and full_name or name
+    const userId = req.body.userId || req.body.user_id;
+    const email = req.body.email;
+    const fullName = req.body.fullName || req.body.full_name || req.body.name || null;
     
     if (!userId || !email) {
       return res.status(400).json({ 
@@ -23,7 +26,7 @@ router.post('/onboard', async (req, res) => {
       .upsert({
         id: userId,
         email: email,
-        full_name: fullName || null,
+        name: fullName,
         account_status: 'active',
         created_at: new Date().toISOString()
       }, {
@@ -51,6 +54,24 @@ router.post('/onboard', async (req, res) => {
       success: false, 
       error: error.message || 'Internal server error' 
     });
+  }
+});
+
+// POST /auth/confirm - programmatically confirm a user's email
+router.post('/confirm', async (req, res) => {
+  const { user_id } = req.body;
+  if (!user_id) {
+    return res.status(400).json({ success: false, error: 'user_id is required' });
+  }
+  try {
+    // Directly update the auth.users table to set email_confirmed_at to now()
+    const { error } = await supabase.rpc('auth.confirm_user_email', { confirm_user_id: user_id });
+    if (error) {
+      return res.status(500).json({ success: false, error: error.message });
+    }
+    res.json({ success: true, message: 'User confirmed' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message || 'Failed to confirm user' });
   }
 });
 

@@ -59,7 +59,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  user_id: session.user.id
+                  user_id: session.user.id,
+                  email: session.user.email,
+                  name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || null
                 }),
               });
 
