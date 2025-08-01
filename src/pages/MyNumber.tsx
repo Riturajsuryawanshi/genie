@@ -38,38 +38,32 @@ const premiumFeatures = [
 export default function MyNumber() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const [phoneNumber, setPhoneNumber] = useState('');
   const [profile, setProfile] = useState(null);
   const [usage, setUsage] = useState(null);
   const [activity, setActivity] = useState([]);
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [callLoading, setCallLoading] = useState(false);
-  const [callMessage, setCallMessage] = useState('');
 
   useEffect(() => {
     if (!user?.id) {
       setLoading(false);
-      setError('You must be logged in to view your number.');
+      setError('You must be logged in to view your dashboard.');
       return;
     }
     setLoading(true);
     setError('');
     Promise.all([
-      fetch(`/api/auth/phone/${user.id}`).then(res => res.json()),
       fetch(`/api/auth/user/${user.id}`).then(res => res.json()),
       fetch(`/api/auth/usage/${user.id}`).then(res => res.json()),
       fetch(`/api/auth/activity/${user.id}`).then(res => res.json()),
       fetch(`/api/auth/plan/${user.id}`).then(res => res.json()),
     ])
-      .then(([phoneRes, userRes, usageRes, activityRes, planRes]) => {
-        if (phoneRes.success && phoneRes.phone_number) setPhoneNumber(phoneRes.phone_number);
+      .then(([userRes, usageRes, activityRes, planRes]) => {
         if (userRes.success && userRes.user) setProfile(userRes.user);
         if (usageRes.success && usageRes.usage) setUsage(usageRes.usage);
         if (activityRes.success && activityRes.activity) setActivity(activityRes.activity);
         if (planRes.success && planRes.plan) setPlan(planRes.plan);
-        if (!phoneRes.success) setError(phoneRes.error || 'Could not fetch your phone number.');
         if (!userRes.success) setError(userRes.error || 'Could not fetch your profile.');
         if (!usageRes.success) setError(usageRes.error || 'Could not fetch your usage stats.');
         if (!planRes.success) setError(planRes.error || 'Could not fetch your plan info.');
@@ -82,7 +76,7 @@ export default function MyNumber() {
     <div className="min-h-screen w-full bg-gradient-to-br from-yellow-100 via-indigo-100 to-rose-100 flex flex-col items-center justify-center py-12 px-4">
       <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl p-10 flex flex-col items-center border-4 border-indigo-200 relative">
         <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-indigo-500 text-white px-8 py-2 rounded-full text-xl font-bold shadow-lg animate-bounce">This is your dedicated CallGenie User Portal</div>
-        <h1 className="text-5xl font-extrabold text-indigo-700 mb-6 mt-12 text-center drop-shadow-lg">CallGenie Number</h1>
+        <h1 className="text-5xl font-extrabold text-indigo-700 mb-6 mt-12 text-center drop-shadow-lg">CallGenie Dashboard</h1>
         <Phone className="w-20 h-20 text-indigo-500 mb-4 animate-pulse" />
         {authLoading || loading ? (
           <div className="text-2xl text-gray-500 my-8">Loading your info...</div>
@@ -90,49 +84,6 @@ export default function MyNumber() {
           <div className="text-xl text-red-600 my-8">{error}</div>
         ) : (
           <>
-            <div className="text-4xl font-mono font-extrabold text-indigo-900 bg-indigo-50 rounded-xl px-12 py-6 shadow mb-8 text-center select-all tracking-widest animate-glow relative">
-              {phoneNumber}
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(phoneNumber);
-                  // You can add a toast notification here if you have a toast system
-                }}
-                className="absolute top-2 right-2 bg-indigo-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-indigo-600 transition-colors"
-                title="Copy number"
-              >
-                Copy
-              </button>
-            </div>
-            <Button
-              className="mb-8 px-10 py-4 text-2xl bg-gradient-to-r from-indigo-500 to-rose-500 text-white rounded-xl shadow hover:scale-105 transition-all"
-              onClick={async () => {
-                setCallLoading(true);
-                setCallMessage('');
-                try {
-                  const res = await fetch('/api/call', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ to: phoneNumber })
-                  });
-                  const data = await res.json();
-                  if (data.success) {
-                    setCallMessage('Call initiated! (SID: ' + data.sid + ')');
-                  } else {
-                    setCallMessage('Call failed: ' + (data.error || 'Unknown error'));
-                  }
-                } catch (err) {
-                  setCallMessage('Call failed: Network error');
-                } finally {
-                  setCallLoading(false);
-                }
-              }}
-              disabled={!phoneNumber || callLoading}
-            >
-              {callLoading ? 'Calling...' : 'Call Now'}
-            </Button>
-            {callMessage && (
-              <div className={`mb-6 text-lg font-semibold ${callMessage.startsWith('Call initiated') ? 'text-green-600' : 'text-red-600'}`}>{callMessage}</div>
-            )}
             {/* User Profile Info */}
             {profile && (
               <div className="w-full mb-8 p-6 rounded-2xl bg-indigo-50 border border-indigo-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">

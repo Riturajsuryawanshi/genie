@@ -221,30 +221,58 @@ export const SaathiChat: React.FC = () => {
   };
 
   return (
-    <div className="flex w-full min-h-[80vh] bg-black">
+    <div className="flex w-full min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900 relative overflow-hidden">
+
+      {/* Fixed Header with SAATHI text and New Chat button */}
+      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-black/20 backdrop-blur-xl border-b border-white/10 shadow-2xl">
+        <div className="flex items-center gap-3">
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-3 rounded-2xl shadow-xl">
+            <Brain className="h-8 w-8 text-white" />
+          </div>
+          <div>
+            <span className="text-3xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              SAATHI
+            </span>
+            <div className="text-xs text-purple-300/60 -mt-1">AI Voice Assistant</div>
+          </div>
+        </div>
+        <button 
+          className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold shadow-lg text-sm"
+          onClick={handleNewChat}
+        >
+          + New Chat
+        </button>
+      </div>
+      
       {/* Collapsible left sidebar: collapsed by default, expands on hover */}
       <aside
-        className={`h-full transition-all duration-300 ease-in-out ${sidebarOpen ? 'w-64 min-w-[200px] max-w-[280px]' : 'w-16 min-w-[64px]'} bg-black border-r border-neutral-800 flex flex-col items-center py-6 relative`}
+        className={`h-screen ${sidebarOpen ? 'w-72 min-w-[288px]' : 'w-16 min-w-[64px]'} bg-white/5 backdrop-blur-xl border-r border-white/10 flex flex-col items-center py-6 relative mt-20 shadow-2xl`}
         onMouseEnter={() => setSidebarOpen(true)}
         onMouseLeave={() => setSidebarOpen(false)}
       >
-        {/* Saathi Logo at absolute top left */}
-        <div className="absolute top-4 left-1 flex items-center justify-center w-10 h-10">
-          <Brain className="h-8 w-8 text-indigo-400" title="Saathi" />
-        </div>
         {/* Only show content if sidebar is open */}
         {sidebarOpen && (
           <>
-            <div className="mt-12" />
-            {/* New Chat Button */}
-            <button className="w-11/12 py-2 mb-4 rounded-lg bg-[#a8edea] text-neutral-900 font-semibold shadow hover:bg-[#b6f0f2] transition" onClick={handleNewChat}>+ New Chat</button>
             {/* Chat History */}
             <div className="w-full px-4 flex-1 overflow-y-auto hide-scrollbar">
-              <h2 className="text-lg font-bold mb-2 text-neutral-200">History</h2>
-              <ul className="space-y-2">
-                {chatHistories.map(chat => (
-                  <li key={chat.id} className={`p-2 rounded-lg cursor-pointer font-medium transition ${chat.id === activeChatId ? 'bg-[#fed6e3]/80 text-indigo-700' : 'bg-neutral-900/60 hover:bg-[#fed6e3]/60 text-neutral-200'}`} onClick={() => handleSelectChat(chat.id)}>
-                    {chat.title}
+              <h2 className="text-xl font-bold mb-4 text-white bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Chat History</h2>
+              <ul className="space-y-3">
+                {chatHistories.map((chat, index) => (
+                  <li 
+                    key={chat.id} 
+                    className={`p-4 rounded-xl cursor-pointer font-medium ${
+                      chat.id === activeChatId 
+                        ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-white border border-indigo-400/30 shadow-lg shadow-indigo-500/20' 
+                        : 'bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-transparent hover:border-white/20'
+                    }`} 
+                    onClick={() => handleSelectChat(chat.id)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${
+                        chat.id === activeChatId ? 'bg-indigo-400' : 'bg-gray-500'
+                      }`}></div>
+                      <span className="truncate">{chat.title}</span>
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -253,51 +281,83 @@ export const SaathiChat: React.FC = () => {
         )}
       </aside>
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col items-center justify-center relative w-full">
+      <div className="flex-1 flex flex-col items-center justify-center relative w-full mt-20">
         {/* Mute/Unmute Button */}
         <button
-          className="absolute top-4 right-8 z-20 bg-neutral-800 border border-neutral-700 rounded-full p-2 shadow hover:bg-neutral-700 transition"
+          className="absolute top-6 right-8 z-20 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full p-3 shadow-lg hover:bg-white/20"
           onClick={() => setIsMuted((m) => !m)}
           title={isMuted ? 'Unmute voice' : 'Mute voice'}
         >
           {isMuted ? <VolumeX className="w-6 h-6 text-red-400" /> : <Volume2 className="w-6 h-6 text-indigo-400" />}
         </button>
-        {/* Heyy, UserName at the top of chat with animation */}
-        <div className="w-full max-w-2xl text-center mt-8 mb-2">
-          <span className="text-2xl font-bold text-white animate-heyy-greeting inline-block">Heyy, {getUserName()}</span>
+        {/* Enhanced greeting with animation */}
+        <div className="w-full max-w-4xl text-center mt-8 mb-6">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-2xl blur-xl"></div>
+            <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-2xl">
+              <span className="text-3xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Hello, {getUserName()}! 👋
+              </span>
+              <p className="text-purple-300/80 mt-2">How can I assist you today?</p>
+            </div>
+          </div>
         </div>
         {/* Chat Container */}
-        <div className="w-full max-w-2xl flex flex-col h-[70vh] bg-black">
-          {/* Messages with vertical scrollbar and custom black scrollbar */}
-          <div className="flex-1 p-6 flex flex-col gap-4 overflow-y-auto custom-black-scrollbar" style={{ minHeight: 0 }}>
+        <div className="w-full max-w-4xl flex flex-col h-[65vh] bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
+          {/* Messages with enhanced styling */}
+          <div className="flex-1 p-6 flex flex-col gap-6 overflow-y-auto" style={{ minHeight: 0, scrollbarWidth: 'thin', scrollbarColor: '#6366f1 transparent' }}>
             {messages.map((msg, idx) => (
-              <div key={msg.id + idx} className={`max-w-[75%] rounded-2xl px-4 py-3 shadow-md ${msg.isUser ? 'bg-indigo-500/80 text-white ml-auto' : 'bg-neutral-800/80 text-neutral-100 mr-auto'} relative`}>
-                <div className="flex items-center gap-2 mb-1">
-                  {msg.isUser ? (
-                    <User className="h-4 w-4 opacity-80" />
-                  ) : (
-                    <Bot className="h-4 w-4 text-indigo-400" />
+              <div key={msg.id + idx} className={`max-w-[80%] rounded-2xl px-6 py-4 shadow-lg ${
+                msg.isUser 
+                  ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white ml-auto shadow-indigo-500/30' 
+                  : 'bg-white/10 backdrop-blur-xl text-white mr-auto border border-white/20 shadow-purple-500/20'
+              } relative overflow-hidden`}>
+                {/* Message glow effect */}
+                <div className={`absolute inset-0 opacity-20 ${
+                  msg.isUser 
+                    ? 'bg-gradient-to-r from-indigo-400 to-purple-400' 
+                    : 'bg-gradient-to-r from-purple-400 to-pink-400'
+                } blur-xl`}></div>
+                
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`p-2 rounded-full ${
+                      msg.isUser 
+                        ? 'bg-white/20' 
+                        : 'bg-gradient-to-r from-indigo-500 to-purple-500'
+                    }`}>
+                      {msg.isUser ? (
+                        <User className="h-4 w-4" />
+                      ) : (
+                        <Bot className="h-4 w-4 text-white" />
+                      )}
+                    </div>
+                    <span className="text-sm font-semibold">{msg.isUser ? 'You' : 'SAATHI'}</span>
+                  </div>
+                  {msg.imageUrl && (
+                    <img src={`data:image/png;base64,${msg.imageUrl.split(',').pop()}`} alt="uploaded" className="rounded-xl mb-3 max-w-full max-h-60 shadow-lg" />
                   )}
-                  <span className="text-xs opacity-60">{msg.isUser ? 'You' : 'SAATHI'}</span>
+                  {msg.text && <div className="text-sm leading-relaxed whitespace-pre-wrap">{msg.text}</div>}
+                  <span className="text-xs opacity-60 mt-3 block text-right">{msg.timestamp.toLocaleTimeString()}</span>
                 </div>
-                {msg.imageUrl && (
-                  <img src={`data:image/png;base64,${msg.imageUrl.split(',').pop()}`} alt="uploaded" className="rounded-lg mb-2 max-w-full max-h-60" />
-                )}
-                {msg.text && <div className="text-sm whitespace-pre-wrap">{msg.text}</div>}
-                <span className="text-xs opacity-40 mt-2 block text-right">{msg.timestamp.toLocaleTimeString()}</span>
               </div>
             ))}
-            {/* Thinking animation when loading */}
+            {/* Enhanced thinking animation when loading */}
             {loading && (
-              <div className="max-w-[75%] rounded-2xl px-4 py-3 shadow-md bg-neutral-800/80 text-neutral-100 mr-auto relative flex items-center gap-2">
-                <Bot className="h-4 w-4 text-indigo-400" />
-                <span className="text-xs opacity-60">SAATHI</span>
-                <span className="ml-2 flex gap-1">
-                  <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></span>
-                  <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }}></span>
-                  <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }}></span>
-                </span>
-                <span className="text-xs opacity-40 mt-2 block text-right">Thinking...</span>
+              <div className="max-w-[80%] rounded-2xl px-6 py-4 shadow-lg bg-white/10 backdrop-blur-xl text-white mr-auto border border-white/20 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 to-pink-400/20 blur-xl opacity-50"></div>
+                <div className="relative z-10 flex items-center gap-3">
+                  <div className="p-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500">
+                    <Bot className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="text-sm font-semibold">SAATHI</span>
+                  <div className="flex gap-1 ml-2">
+                    <div className="w-2 h-2 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-gradient-to-r from-pink-400 to-rose-400 rounded-full"></div>
+                  </div>
+                  <span className="text-xs opacity-60 ml-auto">Thinking...</span>
+                </div>
               </div>
             )}
             <div ref={messagesEndRef} />
@@ -310,8 +370,8 @@ export const SaathiChat: React.FC = () => {
               <button onClick={clearImage} className="text-red-400 hover:text-red-600 ml-2 text-lg font-bold">&times;</button>
             </div>
           )}
-          {/* Input Area */}
-          <div className="flex items-center gap-2 p-0 mt-2">
+          {/* Enhanced Input Area */}
+          <div className="flex items-center gap-3 p-4 bg-white/5 backdrop-blur-xl border-t border-white/10">
             <input
               type="file"
               accept="image/*"
@@ -322,7 +382,7 @@ export const SaathiChat: React.FC = () => {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="rounded-lg bg-neutral-800 border border-neutral-700 text-neutral-200 px-2 py-2 font-semibold flex items-center gap-2"
+              className="rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white p-3 font-semibold flex items-center gap-2 shadow-lg"
               title="Upload image"
               disabled={loading}
             >
@@ -331,7 +391,11 @@ export const SaathiChat: React.FC = () => {
             <button
               type="button"
               onClick={handleVoiceInput}
-              className={`rounded-lg ${isRecording ? 'bg-indigo-400' : 'bg-neutral-800'} border border-neutral-700 text-neutral-200 px-2 py-2 font-semibold flex items-center gap-2`}
+              className={`rounded-xl border border-white/20 text-white p-3 font-semibold flex items-center gap-2 shadow-lg ${
+                isRecording 
+                  ? 'bg-gradient-to-r from-red-500 to-pink-500' 
+                  : 'bg-white/10 hover:bg-white/20'
+              }`}
               title="Speak"
               disabled={isRecording || loading}
             >
@@ -342,15 +406,15 @@ export const SaathiChat: React.FC = () => {
               value={userInput}
               onChange={e => setUserInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Type your message..."
+              placeholder="Type your message to SAATHI..."
               disabled={loading}
-              className="flex-1 rounded-lg border border-neutral-700 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-neutral-800 text-neutral-200"
+              className="flex-1 rounded-xl border border-white/20 px-6 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/10 backdrop-blur-xl text-white placeholder-white/50 hover:bg-white/15"
             />
             <button
               type="button"
               onClick={sendMessage}
               disabled={loading || (!userInput.trim() && !selectedImageBase64)}
-              className="rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 font-semibold flex items-center gap-2 disabled:opacity-50"
+              className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-6 py-3 font-semibold flex items-center gap-2 disabled:opacity-50 shadow-lg"
             >
               {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
             </button>
@@ -369,4 +433,4 @@ export const SaathiChat: React.FC = () => {
       </div>
     </div>
   );
-}; 
+};

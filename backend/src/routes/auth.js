@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getUserPhoneNumber, assignPhoneNumber } = require('../services/number');
+
 const supabase = require('../services/config/supabase');
 
 router.get('/health', (req, res) => res.json({ success: true, route: 'auth' }));
@@ -54,25 +54,7 @@ router.post('/onboard', async (req, res) => {
   }
 });
 
-// GET /auth/phone/:userId - return user's assigned phone number, assign if missing
-router.get('/phone/:userId', async (req, res) => {
-  const { userId } = req.params;
-  try {
-    let result = await getUserPhoneNumber(userId);
-    if (result.success && result.phone_number) {
-      return res.json({ success: true, phone_number: result.phone_number });
-    }
-    // If not found, assign a number
-    result = await assignPhoneNumber(userId);
-    if (result.success) {
-      return res.json({ success: true, phone_number: result.phone_number });
-    } else {
-      res.status(404).json({ success: false, error: result.error || 'Phone number not found or could not be assigned' });
-    }
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
-  }
-});
+
 
 // GET /auth/user/:userId - return user profile info
 router.get('/user/:userId', async (req, res) => {
