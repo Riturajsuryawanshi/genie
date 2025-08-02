@@ -1,0 +1,60 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#A855F7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+    
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#1F2937;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+    </radialGradient>
+    
+    <filter id="logoShadow">
+      <feDropShadow dx="4" dy="8" stdDeviation="6" flood-color="#7C3AED" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" rx="80" fill="url(#bgGlow)"/>
+  
+  <!-- Main phone shape -->
+  <g transform="translate(156,100)">
+    <rect x="0" y="0" width="200" height="312" rx="40" ry="40" 
+          fill="url(#logoGradient)" 
+          filter="url(#logoShadow)"/>
+    <rect x="20" y="50" width="160" height="212" rx="15" fill="#1F2937" opacity="0.8"/>
+  </g>
+  
+  <!-- Magic elements -->
+  <g transform="translate(380,150)">
+    <!-- Large sparkle -->
+    <path d="M0,-30 L8,0 L0,30 L-8,0 Z" fill="#FDE047"/>
+    <path d="M-30,0 L0,8 L30,0 L0,-8 Z" fill="#FDE047"/>
+    
+    <!-- Smaller sparkles -->
+    <circle cx="-50" cy="-20" r="8" fill="#60A5FA"/>
+    <circle cx="40" cy="40" r="6" fill="#F472B6"/>
+    <circle cx="-30" cy="50" r="5" fill="#34D399"/>
+  </g>
+  
+  <!-- Genie smoke effect -->
+  <path d="M256,100 Q320,50 400,80 Q450,100 420,140 Q390,120 340,100" 
+        fill="url(#logoGradient)" 
+        opacity="0.6"/>
+  <path d="M280,80 Q350,30 420,60 Q470,80 440,120 Q410,100 360,80" 
+        fill="url(#logoGradient)" 
+        opacity="0.4"/>
+  
+  <!-- AI circuit pattern -->
+  <g transform="translate(256,256)" opacity="0.7">
+    <circle r="15" fill="#60A5FA" stroke="#8B5CF6" stroke-width="3"/>
+    <line x1="0" y1="15" x2="0" y2="40" stroke="#8B5CF6" stroke-width="3"/>
+    <line x1="-15" y1="0" x2="-40" y2="0" stroke="#8B5CF6" stroke-width="3"/>
+    <line x1="15" y1="0" x2="40" y2="0" stroke="#8B5CF6" stroke-width="3"/>
+    <circle cx="-40" r="8" fill="#60A5FA"/>
+    <circle cx="40" r="8" fill="#60A5FA"/>
+    <circle cy="40" r="8" fill="#60A5FA"/>
+  </g>
+</svg>

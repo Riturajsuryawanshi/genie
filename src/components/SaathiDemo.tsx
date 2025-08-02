@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { Mic, Brain, Volume2, MessageSquare, ArrowRight } from 'lucide-react';
 
-export const SaathiDemo = () => {
+interface SaathiDemoProps {
+  setShowLearnMore?: (show: boolean) => void;
+}
+
+export const SaathiDemo = ({ setShowLearnMore }: SaathiDemoProps) => {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
   const features = [
@@ -61,7 +65,7 @@ export const SaathiDemo = () => {
             </button>
             <button 
               className="px-8 py-4 rounded-xl border-2 border-purple-500/50 text-purple-200 transition-all duration-300 text-lg flex items-center justify-center gap-2 relative overflow-hidden group"
-              onClick={() => setShowLearnMore(true)}
+              onClick={() => setShowLearnMore?.(true)}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-amber-500 to-yellow-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <span className="relative z-10 flex items-center gap-2 group-hover:text-white transition-colors duration-300">
