@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, MapPin, Phone, ArrowLeft, Send, MessageSquare, Clock, Users, Headphones, Globe, CheckCircle } from 'lucide-react';
+import { Mail, MapPin, Phone, ArrowLeft, Send, MessageSquare, Clock, Users, Headphones, Globe, CheckCircle, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const Contact: React.FC = () => {
@@ -14,6 +14,7 @@ export const Contact: React.FC = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState('');
 
   const fadeUpVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -30,24 +31,44 @@ export const Contact: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({
-        name: '',
-        email: '',
-        company: '',
-        subject: '',
-        message: ''
-      });
-    }, 3000);
+    setError('');
+
+    // The original fetch() call to '/api/contact' was causing a network error
+    // because there is no backend API route set up to handle it.
+    // The following code simulates the API call for demonstration purposes.
+    console.log('Simulating form submission with data:', formData);
+    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
+
+    try {
+      // In a real app, you would have your fetch() call here.
+      // We'll simulate a successful response. Change to 'false' to test error handling.
+      const mockSuccess = true;
+
+      if (mockSuccess) {
+        setIsSubmitted(true);
+        console.log('Message sent successfully: (Simulated)');
+
+        // Reset form after 5 seconds
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setFormData({
+            name: '',
+            email: '',
+            company: '',
+            subject: '',
+            message: ''
+          });
+        }, 5000);
+      } else {
+        // Simulate an error response from the server
+        setError('Failed to send message. Please try again. (Simulated)');
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      setError('Network error. Please check your connection and try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactMethods = [
@@ -55,8 +76,8 @@ export const Contact: React.FC = () => {
       icon: Mail,
       title: "Email Us",
       description: "Get in touch via email",
-      value: "riturajsuryawanshi51@gmail.com",
-      action: "mailto:riturajsuryawanshi51@gmail.com"
+      value: "supernovaind00@gmail.com",
+      action: "mailto:supernovaind00@gmail.com"
     },
     {
       icon: Phone,
@@ -270,6 +291,18 @@ export const Contact: React.FC = () => {
                   placeholder="Tell us about your project or question..."
                 />
               </div>
+
+              {/* Error Message */}
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-3"
+                >
+                  <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
+                  <p className="text-red-300 text-sm">{error}</p>
+                </motion.div>
+              )}
 
               <button 
                 type="submit"

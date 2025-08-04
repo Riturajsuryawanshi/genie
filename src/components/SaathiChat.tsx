@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Send, User, Bot, Loader2, Image as ImageIcon, Mic, Volume2, VolumeX, Brain } from 'lucide-react';
 import './SaathiChat.css';
@@ -181,7 +181,11 @@ export const SaathiChat: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(`Gemini API error: ${response.status}`);
+      }
+      const text = await response.text();
+      const result = text ? JSON.parse(text) : null;
       if (
         result.candidates &&
         result.candidates.length > 0 &&

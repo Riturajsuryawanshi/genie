@@ -2,21 +2,31 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
+// Import MongoDB connection
+const connectMongoDB = require('./services/config/mongodb');
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Connect to MongoDB
+connectMongoDB();
+
 // Import routes
-const authRoutes = require('./routes/auth');
+const authRoutes = require('./routes/auth-mongodb'); // Use MongoDB auth routes
+const userRoutes = require('./routes/user');
 const gptRoutes = require('./routes/gpt');
 const sttRoutes = require('./routes/stt');
 const callRoute = require('./routes/call');
+const contactRoutes = require('./routes/contact');
 
 // Mount routes
 app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
 app.use('/api/gpt', gptRoutes);
 app.use('/api/stt', sttRoutes);
 app.use('/api/call', callRoute);
+app.use('/api/contact', contactRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

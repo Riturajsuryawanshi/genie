@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Circle, Phone, MessageSquare, Brain, Shield, Mail, MapPin, LogIn, ChevronRight, User, LogOut, Star, Check, ArrowRight, X } from "lucide-react";
+import { Circle, Phone, MessageSquare, Brain, Shield, Mail, MapPin, LogIn, ChevronRight, User, LogOut, Star, Check, ArrowRight, X, Send, AlertCircle, CheckCircle } from "lucide-react";
 import { GoogleSignInButton } from './GoogleSignInButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { SplineSceneBasic } from './SplineSceneBasic';
@@ -92,7 +92,7 @@ function SectionWithShapes({ children, className = "", ...props }: { children: R
 }
 
 export const DarkLandingPage = () => {
-  const { signInWithGoogle, loading, user, signOut } = useAuth();
+  const { signInWithGoogle, loading, user, signOut, customUser } = useAuth();
   const [showAuthDropdown, setShowAuthDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -100,7 +100,16 @@ export const DarkLandingPage = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [showLearnMore, setShowLearnMore] = useState(false);
   const navigate = useNavigate();
-  // Remove: const [showFreeTrialModal, setShowFreeTrialModal] = useState(false);
+  
+  // Contact form state
+  const [contactFormData, setContactFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+  const [isSubmittingContact, setIsSubmittingContact] = useState(false);
+  const [isContactSubmitted, setIsContactSubmitted] = useState(false);
+  const [contactError, setContactError] = useState('');
 
 
 
@@ -125,6 +134,62 @@ export const DarkLandingPage = () => {
       setShowAuthDropdown(false);
     } catch (error) {
       console.error('Sign out failed:', error);
+    }
+  };
+
+  // Contact form handlers
+  const handleContactInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setContactFormData({
+      ...contactFormData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmittingContact(true);
+    setContactError('');
+    
+    try {
+      // Make API call to backend
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: contactFormData.name,
+          email: contactFormData.email,
+          subject: 'general',
+          message: contactFormData.message
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setIsContactSubmitted(true);
+        console.log('Message sent successfully:', data.message);
+        
+        // Reset form after 5 seconds
+        setTimeout(() => {
+          setIsContactSubmitted(false);
+          setContactFormData({
+            name: '',
+            email: '',
+            message: ''
+          });
+        }, 5000);
+      } else {
+        // Handle error response
+        console.error('Error sending message:', data.error);
+        setContactError(data.error || 'Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      setContactError('Network error. Please check your connection and try again.');
+    } finally {
+      setIsSubmittingContact(false);
     }
   };
 
@@ -304,21 +369,21 @@ export const DarkLandingPage = () => {
 
         {/* Sign In/Up Buttons */}
         <div className="flex items-center space-x-4 relative" ref={dropdownRef}>
-          {user ? (
+          {(user || customUser) ? (
             <div className="relative">
               <button 
                 onClick={() => setShowAuthDropdown(!showAuthDropdown)}
                 className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/30 hover:bg-purple-500/20 transition-all"
               >
                 <User className="h-4 w-4" />
-                <span className="hidden sm:inline text-purple-200">{user.email?.split('@')[0] || 'User'}</span>
+                <span className="hidden sm:inline text-purple-200">{user?.email?.split('@')[0] || customUser?.email?.split('@')[0] || customUser?.name || 'User'}</span>
                 <ChevronRight className={`h-4 w-4 transition-transform text-purple-300/60 ${showAuthDropdown ? 'rotate-90' : ''}`} />
               </button>
               
               {showAuthDropdown && (
                 <div className="absolute right-0 top-full mt-2 w-48 bg-black/90 rounded-lg shadow-xl border border-purple-500/30 py-1 z-50 backdrop-blur-sm">
                   <div className="px-4 py-2 text-sm text-purple-200 border-b border-purple-500/30">
-                    <div className="font-medium">{user.email}</div>
+                    <div className="font-medium">{user?.email || customUser?.email}</div>
                     <div className="text-xs text-purple-300/50">Signed in</div>
                   </div>
                   <button
@@ -1100,7 +1165,7 @@ export const DarkLandingPage = () => {
                     <Mail className="h-5 w-5 text-purple-400" />
                     <div>
                       <div className="font-medium text-white">Email</div>
-                      <div className="text-purple-100/60">riturajsuryawanshi51@gmail.com</div>
+                      <div className="text-purple-100/60">supernovaind00@gmail.com</div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
@@ -1127,39 +1192,82 @@ export const DarkLandingPage = () => {
                 transition={{ duration: 1, delay: 0.7, ease: "easeOut" }}
               >
                 <h3 className="text-xl font-semibold mb-6 text-white">Send us a Message</h3>
-                <div className="space-y-4">
+                <form onSubmit={handleContactSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2 text-white/80">Name</label>
+                    <label className="block text-sm font-medium mb-2 text-white/80">Name *</label>
                     <input 
-                      type="text" 
-                      className="w-full px-3 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-white/40"
+                      type="text"
+                      name="name"
+                      value={contactFormData.name}
+                      onChange={handleContactInputChange}
+                      required
+                      className="w-full px-3 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-white/40"
                       placeholder="Your name"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2 text-white/80">Email</label>
+                    <label className="block text-sm font-medium mb-2 text-white/80">Email *</label>
                     <input 
-                      type="email" 
-                      className="w-full px-3 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-white/40"
+                      type="email"
+                      name="email"
+                      value={contactFormData.email}
+                      onChange={handleContactInputChange}
+                      required
+                      className="w-full px-3 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-white/40"
                       placeholder="your@email.com"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2 text-white/80">Message</label>
+                    <label className="block text-sm font-medium mb-2 text-white/80">Message *</label>
                     <textarea 
                       rows={4}
-                      className="w-full px-3 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-white/40"
+                      name="message"
+                      value={contactFormData.message}
+                      onChange={handleContactInputChange}
+                      required
+                      className="w-full px-3 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-white/40"
                       placeholder="Tell us about your project..."
                     />
                   </div>
-                  <button className="w-full py-4 bg-gradient-to-r from-purple-600 to-violet-600 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-2xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-102 relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <span className="relative z-10 flex items-center gap-2">
-                      Send Message
-                      <ArrowRight className="h-4 w-4" />
-                    </span>
+
+                  {/* Error Message */}
+                  {contactError && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2"
+                    >
+                      <AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" />
+                      <p className="text-red-300 text-sm">{contactError}</p>
+                    </motion.div>
+                  )}
+
+                  <button 
+                    type="submit"
+                    disabled={isSubmittingContact || isContactSubmitted}
+                    className="w-full py-4 bg-gradient-to-r from-purple-600 to-violet-600 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-2xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-102 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isContactSubmitted ? (
+                      <>
+                        <CheckCircle className="h-4 w-4" />
+                        Message Sent!
+                      </>
+                    ) : isSubmittingContact ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <span className="relative z-10 flex items-center gap-2">
+                          <Send className="h-4 w-4" />
+                          Send Message
+                        </span>
+                      </>
+                    )}
                   </button>
-                </div>
+                </form>
               </motion.div>
             </div>
           </div>
@@ -1216,7 +1324,7 @@ export const DarkLandingPage = () => {
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2 text-purple-100/60 text-sm">
                   <Mail className="h-4 w-4" />
-                  <span>riturajsuryawanshi51@gmail.com</span>
+                  <span>supernovaind00@gmail.com</span>
                 </div>
               </div>
               <div className="flex items-center space-x-2 text-purple-100/60 text-sm mt-2">

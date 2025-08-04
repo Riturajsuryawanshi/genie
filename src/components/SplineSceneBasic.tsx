@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card"
 import { Spotlight } from "@/components/ui/spotlight"
 import { Button } from "@/components/ui/button"
 import { Phone, Brain, MessageSquare, Shield, Clock, Users } from "lucide-react"
-import React, { useState } from "react";
+import { useState } from "react";
  
 export function SplineSceneBasic() {
   const [showCallModal, setShowCallModal] = useState(false);
@@ -25,7 +25,11 @@ export function SplineSceneBasic() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phoneNumber }),
       });
-      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(`API error: ${res.status}`);
+      }
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : { success: false };
       if (res.ok && data.success) {
         setCallSuccess(true);
         setShowCallModal(false);

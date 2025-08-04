@@ -1,31 +1,31 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Phone, Brain, BarChart3, MessageSquare, Shield, Star, User, HelpCircle, ArrowRight, Mail } from 'lucide-react';
 
 const TRIAL_DURATION_DAYS = 7;
 
-const features = [
+const featuresData = [
   {
-    icon: <Brain className="h-6 w-6 text-indigo-500" />,
+    iconName: 'Brain',
     title: 'AI-Powered Call Handling',
     description: 'Let Call Genie answer, route, and respond to calls with advanced AI.'
   },
   {
-    icon: <MessageSquare className="h-6 w-6 text-indigo-500" />,
+    iconName: 'MessageSquare',
     title: 'Smart Responses',
     description: 'Context-aware, natural replies for every caller.'
   },
   {
-    icon: <BarChart3 className="h-6 w-6 text-indigo-500" />,
+    iconName: 'BarChart3',
     title: 'Analytics Dashboard',
     description: 'Track call stats, response rates, and more.'
   },
   {
-    icon: <Shield className="h-6 w-6 text-indigo-500" />,
+    iconName: 'Shield',
     title: 'Secure & Reliable',
     description: 'Enterprise-grade security and 99.9% uptime.'
   },
   {
-    icon: <Star className="h-6 w-6 text-indigo-500" />,
+    iconName: 'Star',
     title: 'Premium Support',
     description: 'Priority help during your trial.'
   }
@@ -61,6 +61,34 @@ const CallGenie: React.FC = () => {
 
   // Personalization (placeholder)
   const userName = 'User'; // Replace with real user name if available
+
+  // Create features with icons inside component
+  const features = featuresData.map(feature => {
+    let IconComponent;
+    switch (feature.iconName) {
+      case 'Brain':
+        IconComponent = Brain;
+        break;
+      case 'MessageSquare':
+        IconComponent = MessageSquare;
+        break;
+      case 'BarChart3':
+        IconComponent = BarChart3;
+        break;
+      case 'Shield':
+        IconComponent = Shield;
+        break;
+      case 'Star':
+        IconComponent = Star;
+        break;
+      default:
+        IconComponent = Brain;
+    }
+    return {
+      ...feature,
+      icon: <IconComponent className="h-6 w-6 text-indigo-500" />
+    };
+  });
 
   const startTrial = () => {
     const start = Date.now();

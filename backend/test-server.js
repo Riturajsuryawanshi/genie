@@ -142,6 +142,103 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // POST /api/auth/login - User login
+  if (path === '/api/auth/login' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    req.on('end', () => {
+      try {
+        const { email, password } = JSON.parse(body);
+        
+        // Basic validation
+        if (!email || !password) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            success: false,
+            error: 'Email and password are required'
+          }));
+          return;
+        }
+        
+        console.log('🔐 User login attempt:', { email });
+        
+        // Mock successful login (in real app, verify credentials)
+        const mockUser = {
+          id: 'user_' + Date.now(),
+          email,
+          name: 'Test User',
+          created_at: new Date().toISOString()
+        };
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: true,
+          message: 'Login successful',
+          user: mockUser,
+          token: 'mock_token_' + Date.now()
+        }));
+      } catch (error) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: false,
+          error: 'Invalid request body'
+        }));
+      }
+    });
+    return;
+  }
+
+  // POST /api/auth/signup - Create new user account
+  if (path === '/api/auth/signup' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    req.on('end', () => {
+      try {
+        const { email, password, name, phone } = JSON.parse(body);
+        
+        // Basic validation
+        if (!email || !password || !name) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            success: false,
+            error: 'Email, password, and name are required'
+          }));
+          return;
+        }
+        
+        console.log('📝 New user signup:', { email, name });
+        
+        // Mock successful signup
+        const mockUser = {
+          id: 'user_' + Date.now(),
+          email,
+          name,
+          phone: phone || null,
+          created_at: new Date().toISOString()
+        };
+        
+        res.writeHead(201, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: true,
+          message: 'Account created successfully',
+          user: mockUser,
+          token: 'mock_token_' + Date.now()
+        }));
+      } catch (error) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: false,
+          error: 'Invalid request body'
+        }));
+      }
+    });
+    return;
+  }
+
   // POST /api/auth/onboard - assign phone number to user
   if (path === '/api/auth/onboard' && req.method === 'POST') {
     let body = '';
@@ -449,6 +546,49 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({
           success: false,
           error: 'Invalid Twilio webhook payload'
+        }));
+      }
+    });
+    return;
+  }
+
+  // POST /api/contact - Submit contact form
+  if (path === '/api/contact' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    req.on('end', () => {
+      try {
+        const { name, email, company, subject, message } = JSON.parse(body);
+        
+        // Basic validation
+        if (!name || !email || !subject || !message) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            success: false,
+            error: 'Please fill in all required fields (name, email, subject, message)'
+          }));
+          return;
+        }
+        
+        console.log('📧 New contact message:', { name, email, subject });
+        
+        // Simulate successful submission
+        res.writeHead(201, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: true,
+          message: 'Your message has been sent successfully! We\'ll get back to you soon.',
+          data: {
+            id: 'mock_' + Date.now(),
+            timestamp: new Date().toISOString()
+          }
+        }));
+      } catch (error) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: false,
+          error: 'Invalid request body'
         }));
       }
     });

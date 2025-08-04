@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, CreditCard, Smartphone, Building, Wallet, Shield, Check, Star, Crown, Zap, Rocket } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
