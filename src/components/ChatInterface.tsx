@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -121,7 +121,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ className }) => {
         }),
       });
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : { success: false };
 
       // Remove loading message
       setMessages(prev => prev.filter(msg => msg.id !== loadingMessageId));

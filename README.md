@@ -310,7 +310,7 @@ If you encounter any issues:
 
 ## 📞 Contact
 
-- **Email**: riturajsuryawanshi51@gmail.com
+- **Email**: supernovaind00@gmail.com
 - **Project**: [CallGenie V2](https://github.com/yourusername/callgenie-v2)
 - **Documentation**: [Backend README](genie-voice-command-center/backend/README.md)
 

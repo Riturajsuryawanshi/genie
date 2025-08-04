@@ -119,7 +119,11 @@ export function VercelV0Chat() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message: text }),
             });
-            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(`API error: ${res.status}`);
+            }
+            const responseText = await res.text();
+            const data = responseText ? JSON.parse(responseText) : { success: false };
             setMessages((prev) =>
                 prev.filter((msg) => msg.id !== loadingId)
             );

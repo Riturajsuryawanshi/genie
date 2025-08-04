@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Phone, Check, Star, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -54,10 +54,26 @@ export default function MyNumber() {
     setLoading(true);
     setError('');
     Promise.all([
-      fetch(`/api/auth/user/${user.id}`).then(res => res.json()),
-      fetch(`/api/auth/usage/${user.id}`).then(res => res.json()),
-      fetch(`/api/auth/activity/${user.id}`).then(res => res.json()),
-      fetch(`/api/auth/plan/${user.id}`).then(res => res.json()),
+      fetch(`/api/auth/user/${user.id}`).then(async res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const text = await res.text();
+        return text ? JSON.parse(text) : {};
+      }),
+      fetch(`/api/auth/usage/${user.id}`).then(async res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const text = await res.text();
+        return text ? JSON.parse(text) : {};
+      }),
+      fetch(`/api/auth/activity/${user.id}`).then(async res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const text = await res.text();
+        return text ? JSON.parse(text) : {};
+      }),
+      fetch(`/api/auth/plan/${user.id}`).then(async res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const text = await res.text();
+        return text ? JSON.parse(text) : {};
+      }),
     ])
       .then(([userRes, usageRes, activityRes, planRes]) => {
         if (userRes.success && userRes.user) setProfile(userRes.user);

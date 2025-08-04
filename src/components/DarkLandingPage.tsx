@@ -1,11 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Circle, Phone, MessageSquare, Brain, Shield, Mail, MapPin, LogIn, ChevronRight, User, LogOut, Star, Check, ArrowRight, X } from "lucide-react";
+import { Circle, Phone, MessageSquare, Brain, Shield, Mail, MapPin, LogIn, ChevronRight, User, LogOut, Star, Check, ArrowRight, X, Send, AlertCircle, CheckCircle } from "lucide-react";
 import { GoogleSignInButton } from './GoogleSignInButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { SplineSceneBasic } from './SplineSceneBasic';
 import { SaathiDemo } from './SaathiDemo';
+import { AnimatedLogo } from './AnimatedLogo';
 import { useState, useEffect, useRef } from 'react';
 import { FcGoogle } from "react-icons/fc";
 import { cn } from "@/lib/utils";
@@ -91,7 +92,7 @@ function SectionWithShapes({ children, className = "", ...props }: { children: R
 }
 
 export const DarkLandingPage = () => {
-  const { signInWithGoogle, loading, user, signOut } = useAuth();
+  const { signInWithGoogle, loading, user, signOut, customUser } = useAuth();
   const [showAuthDropdown, setShowAuthDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -99,7 +100,16 @@ export const DarkLandingPage = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [showLearnMore, setShowLearnMore] = useState(false);
   const navigate = useNavigate();
-  // Remove: const [showFreeTrialModal, setShowFreeTrialModal] = useState(false);
+  
+  // Contact form state
+  const [contactFormData, setContactFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+  const [isSubmittingContact, setIsSubmittingContact] = useState(false);
+  const [isContactSubmitted, setIsContactSubmitted] = useState(false);
+  const [contactError, setContactError] = useState('');
 
 
 
@@ -124,6 +134,62 @@ export const DarkLandingPage = () => {
       setShowAuthDropdown(false);
     } catch (error) {
       console.error('Sign out failed:', error);
+    }
+  };
+
+  // Contact form handlers
+  const handleContactInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setContactFormData({
+      ...contactFormData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmittingContact(true);
+    setContactError('');
+    
+    try {
+      // Make API call to backend
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: contactFormData.name,
+          email: contactFormData.email,
+          subject: 'general',
+          message: contactFormData.message
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setIsContactSubmitted(true);
+        console.log('Message sent successfully:', data.message);
+        
+        // Reset form after 5 seconds
+        setTimeout(() => {
+          setIsContactSubmitted(false);
+          setContactFormData({
+            name: '',
+            email: '',
+            message: ''
+          });
+        }, 5000);
+      } else {
+        // Handle error response
+        console.error('Error sending message:', data.error);
+        setContactError(data.error || 'Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      setContactError('Network error. Please check your connection and try again.');
+    } finally {
+      setIsSubmittingContact(false);
     }
   };
 
@@ -271,32 +337,13 @@ export const DarkLandingPage = () => {
       )}
 
       {/* Header */}
-      <header className="px-4 lg:px-6 h-16 flex items-center border-b border-purple-500/20 bg-black/90 backdrop-blur-sm">
+      <header className="px-4 lg:px-6 h-20 flex items-center border-b border-purple-500/20 bg-black/90 backdrop-blur-sm">
         <div className="flex items-center justify-center">
-          <div className="flex items-center space-x-3">
-            <div className="bg-gradient-to-br from-purple-600 to-violet-700 p-2 rounded-xl shadow-lg shadow-purple-500/25">
-              <Phone className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-purple-300 to-violet-300 bg-clip-text text-transparent">
-                CallGenie
-              </span>
-              <div className="text-xs text-purple-300/60 -mt-1">AI Phone Assistant</div>
-            </div>
-          </div>
+          <AnimatedLogo />
         </div>
         
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center space-x-8 mx-auto">
-          <button 
-            onClick={() => {
-              const element = document.getElementById('features');
-              element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }}
-            className="text-purple-200/70 hover:text-white hover:bg-purple-600/20 transition-all duration-300 font-medium px-3 py-1 rounded-lg hover:shadow-lg hover:shadow-purple-500/25"
-          >
-            Features
-          </button>
           <a href="/saathi" className="text-purple-200/70 hover:text-purple-100 transition-colors font-medium">
             SAATHI
           </a>
@@ -322,21 +369,21 @@ export const DarkLandingPage = () => {
 
         {/* Sign In/Up Buttons */}
         <div className="flex items-center space-x-4 relative" ref={dropdownRef}>
-          {user ? (
+          {(user || customUser) ? (
             <div className="relative">
               <button 
                 onClick={() => setShowAuthDropdown(!showAuthDropdown)}
                 className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/30 hover:bg-purple-500/20 transition-all"
               >
                 <User className="h-4 w-4" />
-                <span className="hidden sm:inline text-purple-200">{user.email?.split('@')[0] || 'User'}</span>
+                <span className="hidden sm:inline text-purple-200">{user?.email?.split('@')[0] || customUser?.email?.split('@')[0] || customUser?.name || 'User'}</span>
                 <ChevronRight className={`h-4 w-4 transition-transform text-purple-300/60 ${showAuthDropdown ? 'rotate-90' : ''}`} />
               </button>
               
               {showAuthDropdown && (
                 <div className="absolute right-0 top-full mt-2 w-48 bg-black/90 rounded-lg shadow-xl border border-purple-500/30 py-1 z-50 backdrop-blur-sm">
                   <div className="px-4 py-2 text-sm text-purple-200 border-b border-purple-500/30">
-                    <div className="font-medium">{user.email}</div>
+                    <div className="font-medium">{user?.email || customUser?.email}</div>
                     <div className="text-xs text-purple-300/50">Signed in</div>
                   </div>
                   <button
@@ -378,7 +425,7 @@ export const DarkLandingPage = () => {
                 transition={{ duration: 1.2, delay: 0.7, ease: "easeOut" }}
               >
                 <motion.h1 
-                  className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 md:mb-8 tracking-tight"
+                  className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold mb-6 md:mb-8 tracking-normal"
                   animate={{ 
                     backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
                   }}
@@ -396,7 +443,7 @@ export const DarkLandingPage = () => {
                   }}
                 >
                   <motion.span 
-                    className="block"
+                    className="block font-serif"
                     initial={{ x: -100, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ duration: 0.8, delay: 1 }}
@@ -404,7 +451,7 @@ export const DarkLandingPage = () => {
                     Your AI-Powered
                   </motion.span>
                   <motion.span 
-                    className="block"
+                    className="block font-serif"
                     initial={{ x: 100, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ duration: 0.8, delay: 1.3 }}
@@ -485,8 +532,207 @@ export const DarkLandingPage = () => {
           </div>
         </SectionWithShapes>
 
+        {/* Animated Transition Section */}
+        <div className="relative h-32 bg-black overflow-hidden">
+          {/* Flowing Particles */}
+          {[...Array(12)].map((_, i) => (
+            <motion.div
+              key={`particle-${i}`}
+              className="absolute w-2 h-2 bg-gradient-to-r from-purple-400 to-violet-400 rounded-full"
+              style={{
+                left: `${(i * 8.33)}%`,
+                top: '50%',
+              }}
+              animate={{
+                y: [0, -30, 0, 30, 0],
+                opacity: [0.3, 1, 0.3, 1, 0.3],
+                scale: [0.5, 1.2, 0.8, 1.5, 0.5],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                delay: i * 0.2,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+
+          {/* Connecting Lines */}
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 2 }}
+          >
+            <div className="w-full h-px relative">
+              <motion.div
+                className="absolute left-0 top-0 h-full bg-gradient-to-r from-transparent via-purple-500 to-transparent"
+                initial={{ width: "0%" }}
+                whileInView={{ width: "100%" }}
+                viewport={{ once: true }}
+                transition={{ duration: 3, ease: "easeInOut" }}
+              />
+              <motion.div
+                className="absolute left-0 top-0 h-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-60"
+                initial={{ width: "0%" }}
+                whileInView={{ width: "100%" }}
+                viewport={{ once: true }}
+                transition={{ duration: 3, delay: 0.5, ease: "easeInOut" }}
+              />
+            </div>
+          </motion.div>
+
+          {/* Morphing Geometric Shapes */}
+          <motion.div
+            className="absolute left-1/4 top-1/2 transform -translate-y-1/2"
+            animate={{
+              rotate: 360,
+              scale: [1, 1.3, 0.8, 1],
+            }}
+            transition={{
+              rotate: { duration: 15, repeat: Infinity, ease: "linear" },
+              scale: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+            }}
+          >
+            <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-violet-600 transform rotate-45 opacity-40 rounded-lg" />
+          </motion.div>
+
+          <motion.div
+            className="absolute right-1/4 top-1/2 transform -translate-y-1/2"
+            animate={{
+              rotate: -360,
+              scale: [0.8, 1.2, 1, 0.9],
+            }}
+            transition={{
+              rotate: { duration: 12, repeat: Infinity, ease: "linear" },
+              scale: { duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 1 },
+            }}
+          >
+            <div className="w-6 h-6 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full opacity-50" />
+          </motion.div>
+
+          {/* Energy Waves */}
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center"
+            initial={{ scale: 0, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+          >
+            <motion.div
+              className="absolute w-32 h-32 border border-purple-500/30 rounded-full"
+              animate={{
+                scale: [1, 2, 1],
+                opacity: [0.8, 0.2, 0.8],
+              }}
+              transition={{
+                duration: 6,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+            <motion.div
+              className="absolute w-24 h-24 border border-violet-400/40 rounded-full"
+              animate={{
+                scale: [1, 1.8, 1],
+                opacity: [0.6, 0.1, 0.6],
+              }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 1,
+              }}
+            />
+            <motion.div
+              className="absolute w-16 h-16 border border-cyan-400/50 rounded-full"
+              animate={{
+                scale: [1, 1.5, 1],
+                opacity: [0.9, 0.3, 0.9],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 2,
+              }}
+            />
+          </motion.div>
+
+          {/* Floating Orbs */}
+          <motion.div
+            className="absolute left-1/6 top-1/3"
+            animate={{
+              x: [0, 50, -30, 0],
+              y: [0, -20, 10, 0],
+              opacity: [0.4, 0.8, 0.6, 0.4],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            <div className="w-3 h-3 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full blur-sm" />
+          </motion.div>
+
+          <motion.div
+            className="absolute right-1/6 top-2/3"
+            animate={{
+              x: [0, -40, 20, 0],
+              y: [0, 15, -25, 0],
+              opacity: [0.5, 0.9, 0.3, 0.5],
+            }}
+            transition={{
+              duration: 7,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 2,
+            }}
+          >
+            <div className="w-4 h-4 bg-gradient-to-r from-cyan-300 to-blue-400 rounded-full blur-sm" />
+          </motion.div>
+
+          {/* DNA Helix Effect */}
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 2, delay: 1 }}
+          >
+            {[...Array(6)].map((_, i) => (
+              <motion.div
+                key={`helix-${i}`}
+                className="absolute w-1 h-8 bg-gradient-to-t from-purple-500/60 to-violet-400/60 rounded-full"
+                style={{
+                  left: `${45 + i * 2}%`,
+                }}
+                animate={{
+                  rotate: [0, 180, 360],
+                  scaleY: [1, 1.5, 1],
+                }}
+                transition={{
+                  duration: 6,
+                  repeat: Infinity,
+                  delay: i * 0.3,
+                  ease: "easeInOut",
+                }}
+              />
+            ))}
+          </motion.div>
+        </div>
+
         {/* SAATHI Voice AI Section */}
-        <SaathiDemo />
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+        >
+          <SaathiDemo setShowLearnMore={setShowLearnMore} />
+        </motion.div>
 
 
 
@@ -588,105 +834,107 @@ export const DarkLandingPage = () => {
           </div>
         </SectionWithShapes>
 
-        {/* Pricing Section */}
-        <SectionWithShapes className="py-24" id="pricing">
+        {/* CallGenie AI Showcase Section */}
+        <SectionWithShapes className="py-32" id="showcase">
           <div className="container mx-auto px-4 md:px-6">
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 1, ease: "easeOut" }}
-              className="text-center mb-12"
+              transition={{ duration: 1.2, ease: "easeOut" }}
+              className="text-center max-w-6xl mx-auto"
             >
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
-                Simple{" "}
-                <span className="bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">
-                  Pricing
-                </span>
-              </h2>
-              <p className="text-xl text-purple-100/70 max-w-3xl mx-auto leading-relaxed">
-                Choose the plan that fits your business needs
-              </p>
-            </motion.div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-              {[
-                {
-                  name: "Starter",
-                  price: "₹999",
-                  period: "/month",
-                  description: "Perfect for small businesses",
-                  features: ["100 calls/month", "Basic AI responses", "Email support", "Standard features"],
-                  popular: false
-                },
-                {
-                  name: "Professional",
-                  price: "₹2,499",
-                  period: "/month",
-                  description: "Ideal for growing businesses",
-                  features: ["500 calls/month", "Advanced AI responses", "Priority support", "Custom integrations", "Analytics dashboard"],
-                  popular: true
-                },
-                {
-                  name: "Enterprise",
-                  price: "₹4,999",
-                  period: "/month",
-                  description: "For large organizations",
-                  features: ["Unlimited calls", "Custom AI training", "24/7 support", "Advanced analytics", "White-label options", "API access"],
-                  popular: false
-                }
-              ].map((plan, index) => (
-                <motion.div
-                  key={plan.name}
-                  initial={{ opacity: 0, y: 50, rotateY: -15 }}
-                  whileInView={{ opacity: 1, y: 0, rotateY: 0 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{ duration: 0.8, delay: index * 0.2, ease: "easeOut" }}
-                  whileHover={{ scale: 1.05, rotateY: 5 }}
-                  className={cn(
-                    "p-8 rounded-2xl border transition-all",
-                    plan.popular 
-                      ? "bg-gradient-to-br from-purple-500/20 to-violet-500/20 border-purple-500/30" 
-                      : "bg-white/[0.03] border-white/[0.08] hover:bg-white/[0.05]"
-                  )}
+              <motion.h2 
+                className="text-5xl md:text-6xl lg:text-8xl font-serif font-normal leading-[1.1] text-white tracking-normal"
+                initial={{ opacity: 0, y: 100 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+              >
+                With{" "}
+                <motion.span 
+                  className="bg-gradient-to-r from-purple-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent font-serif italic"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.8, delay: 0.3, ease: "easeOut" }}
+                  whileHover={{ 
+                    scale: 1.05,
+                    transition: { duration: 0.3 }
+                  }}
                 >
-                  {plan.popular && (
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-purple-500 to-violet-500 text-white text-sm font-medium mb-4">
-                      <Star className="h-4 w-4" />
-                      Most Popular
-                    </div>
-                  )}
-                  <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
-                  <p className="text-purple-100/60 mb-4">{plan.description}</p>
-                  <div className="mb-6">
-                    <span className="text-4xl font-bold text-white">{plan.price}</span>
-                    <span className="text-purple-100/60">{plan.period}</span>
-                  </div>
-                  <ul className="space-y-3 mb-8">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-3 text-purple-100/90">
-                        <Check className="h-4 w-4 text-purple-400 flex-shrink-0" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <button className={cn(
-                    "w-full py-3 rounded-lg font-medium transition-all relative overflow-hidden group",
-                    plan.popular
-                      ? "bg-gradient-to-r from-purple-600 to-violet-600 text-white"
-                      : "bg-white/[0.05] border border-white/[0.2] text-purple-200/80 hover:bg-white/[0.1]"
-                  )}>
-                    <div className={cn(
-                      "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300",
-                      plan.popular
-                        ? "bg-gradient-to-r from-yellow-500 to-orange-500"
-                        : "bg-gradient-to-r from-indigo-500 to-purple-500"
-                    )}></div>
-                    <span className="relative z-10">Get Started</span>
-                  </button>
-                </motion.div>
-              ))}
-            </div>
+                  enterprise-grade security
+                </motion.span>
+                <br />
+                <motion.span 
+                  className="bg-gradient-to-r from-violet-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent font-serif italic"
+                  initial={{ opacity: 0, x: -50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.6, delay: 0.6, ease: "easeOut" }}
+                  whileHover={{ 
+                    scale: 1.05,
+                    transition: { duration: 0.3 }
+                  }}
+                >
+                  and privacy,
+                </motion.span>{" "}
+                you can make
+                <br />
+                <motion.span
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.4, delay: 0.9, ease: "easeOut" }}
+                >
+                  and receive calls with confidence
+                </motion.span>
+                <motion.span 
+                  className="text-purple-400 text-6xl md:text-7xl lg:text-9xl font-serif"
+                  initial={{ opacity: 0, scale: 0 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1, delay: 1.2, ease: "easeOut" }}
+                  whileHover={{ 
+                    rotate: 360,
+                    transition: { duration: 0.8 }
+                  }}
+                >
+                  .
+                </motion.span>
+              </motion.h2>
+              
+              {/* Floating elements animation */}
+              <motion.div
+                className="absolute inset-0 pointer-events-none"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 2, delay: 1.5 }}
+              >
+                {[...Array(6)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-2 h-2 bg-purple-400/30 rounded-full"
+                    style={{
+                      left: `${10 + i * 15}%`,
+                      top: `${20 + (i % 2) * 40}%`,
+                    }}
+                    animate={{
+                      y: [0, -20, 0],
+                      opacity: [0.3, 0.8, 0.3],
+                      scale: [1, 1.2, 1],
+                    }}
+                    transition={{
+                      duration: 3 + i * 0.5,
+                      repeat: Infinity,
+                      delay: i * 0.3,
+                      ease: "easeInOut",
+                    }}
+                  />
+                ))}
+              </motion.div>
+            </motion.div>
           </div>
         </SectionWithShapes>
 
@@ -917,7 +1165,7 @@ export const DarkLandingPage = () => {
                     <Mail className="h-5 w-5 text-purple-400" />
                     <div>
                       <div className="font-medium text-white">Email</div>
-                      <div className="text-purple-100/60">riturajsuryawanshi51@gmail.com</div>
+                      <div className="text-purple-100/60">supernovaind00@gmail.com</div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
@@ -944,39 +1192,82 @@ export const DarkLandingPage = () => {
                 transition={{ duration: 1, delay: 0.7, ease: "easeOut" }}
               >
                 <h3 className="text-xl font-semibold mb-6 text-white">Send us a Message</h3>
-                <div className="space-y-4">
+                <form onSubmit={handleContactSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2 text-white/80">Name</label>
+                    <label className="block text-sm font-medium mb-2 text-white/80">Name *</label>
                     <input 
-                      type="text" 
-                      className="w-full px-3 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-white/40"
+                      type="text"
+                      name="name"
+                      value={contactFormData.name}
+                      onChange={handleContactInputChange}
+                      required
+                      className="w-full px-3 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-white/40"
                       placeholder="Your name"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2 text-white/80">Email</label>
+                    <label className="block text-sm font-medium mb-2 text-white/80">Email *</label>
                     <input 
-                      type="email" 
-                      className="w-full px-3 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-white/40"
+                      type="email"
+                      name="email"
+                      value={contactFormData.email}
+                      onChange={handleContactInputChange}
+                      required
+                      className="w-full px-3 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-white/40"
                       placeholder="your@email.com"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2 text-white/80">Message</label>
+                    <label className="block text-sm font-medium mb-2 text-white/80">Message *</label>
                     <textarea 
                       rows={4}
-                      className="w-full px-3 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-white/40"
+                      name="message"
+                      value={contactFormData.message}
+                      onChange={handleContactInputChange}
+                      required
+                      className="w-full px-3 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-white/40"
                       placeholder="Tell us about your project..."
                     />
                   </div>
-                  <button className="w-full py-4 bg-gradient-to-r from-purple-600 to-violet-600 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-2xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-102 relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <span className="relative z-10 flex items-center gap-2">
-                      Send Message
-                      <ArrowRight className="h-4 w-4" />
-                    </span>
+
+                  {/* Error Message */}
+                  {contactError && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2"
+                    >
+                      <AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" />
+                      <p className="text-red-300 text-sm">{contactError}</p>
+                    </motion.div>
+                  )}
+
+                  <button 
+                    type="submit"
+                    disabled={isSubmittingContact || isContactSubmitted}
+                    className="w-full py-4 bg-gradient-to-r from-purple-600 to-violet-600 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-2xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-102 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isContactSubmitted ? (
+                      <>
+                        <CheckCircle className="h-4 w-4" />
+                        Message Sent!
+                      </>
+                    ) : isSubmittingContact ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <span className="relative z-10 flex items-center gap-2">
+                          <Send className="h-4 w-4" />
+                          Send Message
+                        </span>
+                      </>
+                    )}
                   </button>
-                </div>
+                </form>
               </motion.div>
             </div>
           </div>
@@ -1033,7 +1324,7 @@ export const DarkLandingPage = () => {
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2 text-purple-100/60 text-sm">
                   <Mail className="h-4 w-4" />
-                  <span>riturajsuryawanshi51@gmail.com</span>
+                  <span>supernovaind00@gmail.com</span>
                 </div>
               </div>
               <div className="flex items-center space-x-2 text-purple-100/60 text-sm mt-2">

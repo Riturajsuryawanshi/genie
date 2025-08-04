@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -9,6 +9,7 @@ interface AuthContextType {
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+  customUser: any;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,6 +29,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [customUser, setCustomUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -37,6 +39,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
       setUser(session?.user ?? null);
+      
+      // Check for custom auth token
+      const customUserData = localStorage.getItem('user');
+      if (customUserData) {
+        try {
+          setCustomUser(JSON.parse(customUserData));
+        } catch (error) {
+          console.error('Error parsing custom user data:', error);
+        }
+      }
+      
       setLoading(false);
     };
 
@@ -132,6 +145,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLoading(true);
       const { error } = await supabase.auth.signOut();
       
+      // Clear custom auth data
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
+      setCustomUser(null);
+      
       if (error) {
         throw error;
       }
@@ -153,6 +171,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loading,
     signInWithGoogle,
     signOut,
+    customUser,
   };
 
   return (

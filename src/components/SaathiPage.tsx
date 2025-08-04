@@ -1,6 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { SaathiChat } from './SaathiChat';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 // Add some beautiful illustrated face avatar URLs
 const AVATAR_OPTIONS = [

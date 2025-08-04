@@ -1,14 +1,13 @@
 import { FcGoogle } from "react-icons/fc";
-import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from '@/integrations/supabase/client';
 import { Eye, EyeOff } from 'lucide-react';
 
 interface Signup1Props {
   heading?: string;
-  logo: {
+  subtitle?: string;
+  logo?: {
     url: string;
     src: string;
     alt: string;
@@ -22,23 +21,15 @@ interface Signup1Props {
 }
 
 const Signup1 = ({
-  heading = "Create your CallGenie account",
-  logo = {
-    url: "/",
-    src: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=100&fit=crop&crop=center",
-    alt: "CallGenie Logo",
-    title: "CallGenie",
-  },
+  heading = "Create Account",
+  subtitle = "Join CallGenie and get started today",
   googleText = "Sign up with Google",
-  signupText = "Create an account",
-  loginText = "Already have an account?",
-  loginUrl = "/login",
   onSuccess,
 }: Signup1Props) => {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { signInWithGoogle } = useAuth();
   const { toast } = useToast();
@@ -49,47 +40,45 @@ const Signup1 = ({
     e.preventDefault();
     setIsLoading(true);
     setFormError(null);
+    
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          password,
+          name,
+          phone
+        })
       });
-      if (error) {
-        setFormError(error.message);
-        throw error;
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `HTTP ${response.status}`);
       }
-      // Immediately authenticate (no email verification)
-      if (data.user) {
-        // Call backend to store name and phone
-        await fetch('/api/auth/onboard', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: data.user.id,
-            email,
-            name,
-            phone_number: phone
-          })
-        });
-        // Programmatically confirm the user
-        try {
-          await fetch('/api/auth/confirm', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_id: data.user.id })
-          });
-        } catch (err) {
-          toast({
-            title: 'Warning',
-            description: 'User created but could not auto-confirm email.',
-            variant: 'destructive',
-          });
-        }
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : { success: false };
+
+      if (!data.success) {
+        setFormError(data.error || 'Signup failed');
+        throw new Error(data.error || 'Signup failed');
       }
+
+      // Store the token in localStorage
+      if (data.token) {
+        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+      }
+
       toast({
         title: 'Account created!',
         description: 'You have been signed up successfully.',
       });
+      
+      // Refresh the page to update auth context
+      window.location.reload();
+      
       onSuccess?.();
     } catch (error: unknown) {
       if (!formError) {
@@ -105,7 +94,7 @@ const Signup1 = ({
     }
   };
 
-  const handleGoogleSignup = async () => {
+  const handleGoogleSignUp = async () => {
     setIsLoading(true);
     try {
       await signInWithGoogle();
@@ -122,209 +111,149 @@ const Signup1 = ({
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-purple-900 via-black to-violet-900 relative overflow-hidden">
+    <section className="min-h-screen w-full bg-gradient-to-br from-purple-900 via-purple-800 to-violet-900 relative overflow-auto">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-violet-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-fuchsia-500/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full animate-ping"></div>
+        <div className="absolute bottom-32 left-16 w-24 h-24 bg-purple-400/30 rounded-full animate-bounce" style={{animationDuration: '2s'}}></div>
+        <div className="absolute top-1/3 right-1/3 w-16 h-16 bg-violet-400/40 rounded-full animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-20 h-20 bg-pink-400/25 rounded-full animate-spin" style={{animationDuration: '8s'}}></div>
+        <div className="absolute top-1/2 left-10 w-12 h-12 bg-blue-400/30 rounded-full animate-ping" style={{animationDelay: '1s'}}></div>
       </div>
-      
-      <div className="flex h-full min-h-screen items-center justify-center p-4 relative z-10">
+      <div className="flex w-full min-h-screen items-center justify-center p-4 py-8 relative z-10">
         <div className="w-full max-w-md">
-          {/* Glassmorphism Card */}
-          <div className="bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-8 shadow-2xl hover:shadow-purple-500/25 transition-all duration-500 hover:scale-105">
-            <div className="flex flex-col items-center gap-y-6 mb-8">
-              {/* Logo with Glow Effect */}
+          <div className="space-y-6">
+            {/* Logo */}
+            <div className="flex justify-center">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30">
+                <span className="text-2xl font-bold text-white">C</span>
+              </div>
+            </div>
+            
+            {/* Header */}
+            <div className="text-center space-y-2">
+              <h1 className="text-3xl font-semibold text-white">
+                {heading}
+              </h1>
+              <p className="text-white/70 text-sm">
+                {subtitle}
+              </p>
+            </div>
+            
+            {/* Error Display */}
+            {formError && (
+              <div className="bg-red-500/20 border border-red-500/40 text-red-200 px-4 py-3 rounded-lg text-sm" role="alert">
+                {formError}
+              </div>
+            )}
+            
+            <form onSubmit={handleEmailSignup} className="space-y-3">
+              {/* Full Name Input */}
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-violet-500 rounded-full blur-lg opacity-50 animate-pulse"></div>
-                <div className="relative bg-gradient-to-r from-purple-600 to-violet-600 p-4 rounded-2xl shadow-xl">
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
-                  </svg>
-                </div>
+                <input
+                  type="text"
+                  placeholder="Full Name"
+                  value={name}
+                  onChange={(e) => { setName(e.target.value); setFormError(null); }}
+                  required
+                  disabled={isLoading}
+                  className="w-full h-12 bg-white/10 border border-white/20 rounded-lg px-4 text-white placeholder-white/50 focus:outline-none focus:border-white/40 focus:bg-white/15 transition-all duration-200"
+                />
               </div>
-              {heading && (
-                <h1 className="text-3xl font-bold text-white text-center bg-gradient-to-r from-purple-300 to-violet-300 bg-clip-text text-transparent">
-                  {heading}
-                </h1>
-              )}
-            </div>
-<<<<<<< HEAD
-            
-            <form onSubmit={handleEmailSignup} className="space-y-6">
-              <div className="space-y-4">
-                {/* Enhanced Email Input */}
-                <div className="relative group">
-                  <Input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    disabled={isLoading}
-                    className="bg-white/5 border-white/20 text-white placeholder-white/50 rounded-xl h-12 px-4 focus:bg-white/10 focus:border-purple-400 transition-all duration-300 hover:bg-white/10 hover:border-violet-400"
-                  />
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/20 to-violet-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                </div>
-                
-                {/* Enhanced Password Input */}
-                <div className="relative group">
-                  <Input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    disabled={isLoading}
-                    className="bg-white/5 border-white/20 text-white placeholder-white/50 rounded-xl h-12 px-4 focus:bg-white/10 focus:border-purple-400 transition-all duration-300 hover:bg-white/10 hover:border-violet-400"
-                  />
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/20 to-violet-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                </div>
-                
-                {/* Enhanced Buttons */}
-                <div className="space-y-3 pt-2">
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full h-12 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <span className="relative z-10">
-                      {isLoading ? "Creating account..." : signupText}
-                    </span>
-                  </button>
-                  
-                  <button
-                    type="button"
-                    onClick={handleGoogleSignup}
-                    disabled={isLoading}
-                    className="w-full h-12 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 relative overflow-hidden group"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-green-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <FcGoogle className="w-5 h-5 relative z-10" />
-                    <span className="relative z-10">
-                      {isLoading ? "Signing up..." : googleText}
-                    </span>
-                  </button>
-                </div>
+              
+              {/* Email Input */}
+              <div className="relative">
+                <input
+                  type="email"
+                  placeholder="Email address"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); setFormError(null); }}
+                  required
+                  disabled={isLoading}
+                  className="w-full h-12 bg-white/10 border border-white/20 rounded-lg px-4 text-white placeholder-white/50 focus:outline-none focus:border-white/40 focus:bg-white/15 transition-all duration-200"
+                />
               </div>
-            </form>
-            
-
-=======
-            {heading && <h1 className="text-3xl font-semibold">{heading}</h1>}
-          </div>
-          {formError && (
-            <div className="mb-4 w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative flex items-center justify-between" role="alert">
-              <span className="block font-medium">{formError}</span>
-              <button onClick={() => setFormError(null)} className="ml-4 text-red-700 hover:text-red-900 font-bold text-lg" aria-label="Dismiss error">&times;</button>
-            </div>
-          )}
-          <form onSubmit={handleEmailSignup} className="w-full flex flex-col gap-4">
-            <label htmlFor="signup-name" className="text-sm font-medium text-gray-700 dark:text-gray-200">Name</label>
-            <Input
-              id="signup-name"
-              type="text"
-              placeholder="Your Name"
-              value={name}
-              onChange={(e) => { setName(e.target.value); setFormError(null); }}
-              required
-              disabled={isLoading}
-              className="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all bg-white/80 dark:bg-black/40 text-gray-900 dark:text-white shadow-sm"
-              aria-label="Name"
-            />
-            <label htmlFor="signup-phone" className="text-sm font-medium text-gray-700 dark:text-gray-200">Phone Number</label>
-            <Input
-              id="signup-phone"
-              type="tel"
-              placeholder="Phone Number"
-              value={phone}
-              onChange={(e) => { setPhone(e.target.value); setFormError(null); }}
-              required
-              disabled={isLoading}
-              className="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all bg-white/80 dark:bg-black/40 text-gray-900 dark:text-white shadow-sm"
-              aria-label="Phone Number"
-            />
-            <label htmlFor="signup-email" className="text-sm font-medium text-gray-700 dark:text-gray-200">Email</label>
-            <Input
-              id="signup-email"
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => { setEmail(e.target.value); setFormError(null); }}
-              required
-              disabled={isLoading}
-              className="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all bg-white/80 dark:bg-black/40 text-gray-900 dark:text-white shadow-sm"
-              aria-label="Email"
-            />
-            <label htmlFor="signup-password" className="text-sm font-medium text-gray-700 dark:text-gray-200 mt-2">Password</label>
-            <div className="relative">
-              <Input
-                id="signup-password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Password"
-                value={password}
-                onChange={(e) => { setPassword(e.target.value); setFormError(null); }}
-                required
+              
+              {/* Phone Input */}
+              <div className="relative">
+                <input
+                  type="tel"
+                  placeholder="Phone Number (optional)"
+                  value={phone}
+                  onChange={(e) => { setPhone(e.target.value); setFormError(null); }}
+                  disabled={isLoading}
+                  className="w-full h-12 bg-white/10 border border-white/20 rounded-lg px-4 text-white placeholder-white/50 focus:outline-none focus:border-white/40 focus:bg-white/15 transition-all duration-200"
+                />
+              </div>
+              
+              {/* Password Input */}
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => { setPassword(e.target.value); setFormError(null); }}
+                  required
+                  disabled={isLoading}
+                  className="w-full h-12 bg-white/10 border border-white/20 rounded-lg px-4 pr-12 text-white placeholder-white/50 focus:outline-none focus:border-white/40 focus:bg-white/15 transition-all duration-200"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/70 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+              
+              {/* Create Account Button */}
+              <button
+                type="submit"
                 disabled={isLoading}
-                className="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all bg-white/80 dark:bg-black/40 text-gray-900 dark:text-white shadow-sm pr-10"
-                aria-label="Password"
-              />
+                className="w-full h-12 bg-white hover:bg-white/90 text-purple-900 font-semibold rounded-lg transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
+              >
+                <span>{isLoading ? "Creating account..." : "Create Account"}</span>
+              </button>
+              
+              {/* Divider */}
+              <div className="flex items-center my-4">
+                <div className="flex-grow border-t border-white/20" />
+                <span className="mx-4 text-white/50 text-sm">or</span>
+                <div className="flex-grow border-t border-white/20" />
+              </div>
+              
+              {/* Google Sign Up */}
               <button
                 type="button"
-                tabIndex={-1}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-800 dark:hover:text-white focus:outline-none"
-                onClick={() => setShowPassword((v) => !v)}
+                onClick={handleGoogleSignUp}
+                disabled={isLoading}
+                className="w-full h-12 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/30 text-white font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                <span>{isLoading ? "Creating account..." : googleText}</span>
               </button>
+            </form>
+            
+            {/* Sign In Link */}
+            <div className="text-center">
+              <span className="text-white/60 text-sm">Already have an account? </span>
+              <a
+                href="/login"
+                className="text-white font-medium hover:underline transition-colors text-sm"
+              >
+                Sign in
+              </a>
             </div>
-            <Button type="submit" className="mt-4 w-full rounded-lg bg-gradient-to-r from-indigo-500 to-rose-500 text-white font-semibold shadow-lg hover:scale-105 hover:shadow-xl transition-all text-lg py-2" disabled={isLoading}>
-              {isLoading ? "Creating account..." : signupText}
-            </Button>
-            <div className="flex items-center my-2">
-              <div className="flex-grow border-t border-gray-300 dark:border-gray-700" />
-              <span className="mx-2 text-gray-500 text-xs">or</span>
-              <div className="flex-grow border-t border-gray-300 dark:border-gray-700" />
-            </div>
-            <Button 
-              type="button"
-              variant="outline" 
-              className="w-full rounded-lg flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-700 bg-white/90 dark:bg-black/30 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-white shadow"
-              onClick={handleGoogleSignup}
-              disabled={isLoading}
-            >
-              <FcGoogle className="mr-2 size-5" />
-              {isLoading ? "Signing up..." : googleText}
-            </Button>
-          </form>
-          <div className="text-muted-foreground flex justify-center gap-1 text-sm mt-4">
-            <p>{loginText}</p>
-            <a
-              href={loginUrl}
-              className="text-primary font-medium hover:underline"
-            >
-              Login
-            </a>
->>>>>>> e1801927d793f0b28aff106328f74bf9b730f52a
           </div>
         </div>
       </div>
-      
-      {/* Additional Styling */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-        .animate-float {
-          animation: float 3s ease-in-out infinite;
-        }
-      `}</style>
     </section>
   );
 };
 
-export { Signup1 }; 
+export { Signup1 };

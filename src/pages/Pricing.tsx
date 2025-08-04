@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Star, ArrowLeft, Phone, Zap, Shield, Users, Crown, Rocket, Globe, HeadphonesIcon, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -16,19 +16,19 @@ export const Pricing: React.FC = () => {
   const plans = [
     {
       name: "Starter",
-      price: billingCycle === 'monthly' ? "₹999" : "₹9,990",
-      originalPrice: billingCycle === 'yearly' ? "₹11,988" : null,
+      price: billingCycle === 'monthly' ? "₹99" : "₹990",
+      originalPrice: billingCycle === 'yearly' ? "₹1,188" : null,
       period: billingCycle === 'monthly' ? "/month" : "/year",
-      description: "Perfect for small businesses getting started",
+      description: "Perfect for individuals and small teams starting with AI calling",
       features: [
-        "100 AI calls per month",
-        "Basic voice recognition",
-        "Standard response time",
+        "50 AI assistant calls per month",
+        "Natural conversation AI",
+        "Basic call scheduling",
         "Email support",
-        "Call recording & transcripts",
-        "Basic analytics dashboard",
-        "Multi-language support",
-        "Standard integrations"
+        "Call recordings & summaries",
+        "Simple analytics dashboard",
+        "English language support",
+        "Basic phone integrations"
       ],
       popular: false,
       icon: Zap,
@@ -36,21 +36,21 @@ export const Pricing: React.FC = () => {
     },
     {
       name: "Professional",
-      price: billingCycle === 'monthly' ? "₹2,499" : "₹24,990",
-      originalPrice: billingCycle === 'yearly' ? "₹29,988" : null,
+      price: billingCycle === 'monthly' ? "₹249" : "₹2,490",
+      originalPrice: billingCycle === 'yearly' ? "₹2,988" : null,
       period: billingCycle === 'monthly' ? "/month" : "/year",
-      description: "Ideal for growing businesses",
+      description: "Ideal for growing businesses with regular AI calling needs",
       features: [
-        "500 AI calls per month",
-        "Advanced voice recognition",
-        "Priority response time",
+        "200 AI assistant calls per month",
+        "Advanced conversational AI",
+        "Smart call routing & scheduling",
         "Priority email & chat support",
-        "Advanced call analytics",
-        "Custom integrations (CRM, Slack)",
-        "Team collaboration tools",
-        "Advanced reporting",
-        "Custom voice training",
-        "API access"
+        "Detailed call analytics & insights",
+        "CRM integrations (Salesforce, HubSpot)",
+        "Multi-language AI support (10+ languages)",
+        "Custom AI response training",
+        "Advanced call filtering",
+        "Team collaboration tools"
       ],
       popular: true,
       icon: Crown,
@@ -58,23 +58,23 @@ export const Pricing: React.FC = () => {
     },
     {
       name: "Enterprise",
-      price: billingCycle === 'monthly' ? "₹4,999" : "₹49,990",
-      originalPrice: billingCycle === 'yearly' ? "₹59,988" : null,
+      price: billingCycle === 'monthly' ? "₹449" : "₹4,490",
+      originalPrice: billingCycle === 'yearly' ? "₹5,388" : null,
       period: billingCycle === 'monthly' ? "/month" : "/year",
-      description: "For large organizations with advanced needs",
+      description: "For large organizations requiring unlimited AI calling capabilities",
       features: [
-        "Unlimited AI calls",
-        "Premium voice recognition",
-        "Instant response time",
-        "24/7 dedicated support",
-        "Advanced analytics & insights",
-        "White-label options",
-        "Custom AI model training",
-        "Enterprise integrations",
-        "SSO & advanced security",
-        "Service Level Agreement (SLA)",
+        "Unlimited AI assistant calls",
+        "Premium neural voice AI",
+        "Instant AI response time",
+        "24/7 dedicated support hotline",
+        "Advanced AI personality customization",
+        "White-label AI assistant branding",
+        "Custom AI model training & fine-tuning",
+        "Enterprise-grade security & compliance",
+        "Advanced API access & webhooks",
+        "Multi-tenant team management",
         "Dedicated account manager",
-        "Custom deployment options"
+        "Custom deployment & infrastructure"
       ],
       popular: false,
       icon: Rocket,
@@ -85,33 +85,33 @@ export const Pricing: React.FC = () => {
   const features = [
     {
       icon: Phone,
-      title: "AI-Powered Calls",
-      description: "Natural conversations with advanced AI that understands context and intent"
+      title: "Intelligent AI Assistant",
+      description: "Human-like conversations that handle calls professionally with contextual understanding"
     },
     {
       icon: Shield,
-      title: "Enterprise Security",
-      description: "Bank-level encryption and compliance with industry standards"
+      title: "Secure Call Handling",
+      description: "Enterprise-grade security for all AI assistant calls and data protection"
     },
     {
       icon: Users,
-      title: "Team Collaboration",
-      description: "Share insights and manage calls across your entire team"
+      title: "Smart Call Routing",
+      description: "AI automatically routes calls to the right person or department efficiently"
     },
     {
       icon: BarChart3,
-      title: "Advanced Analytics",
-      description: "Detailed insights into call performance and customer interactions"
+      title: "Call Performance Insights",
+      description: "Detailed analytics on AI assistant performance and call outcomes"
     },
     {
       icon: Globe,
-      title: "Global Coverage",
-      description: "Support for multiple languages and international phone numbers"
+      title: "Multi-Language AI",
+      description: "AI assistant supports 10+ languages for global business communication"
     },
     {
       icon: HeadphonesIcon,
-      title: "24/7 Support",
-      description: "Round-the-clock assistance from our expert support team"
+      title: "Always Available",
+      description: "Your AI calling assistant works 24/7, never misses a call or takes a break"
     }
   ];
 
@@ -261,12 +261,15 @@ export const Pricing: React.FC = () => {
                 ))}
               </ul>
 
-              <button className={cn(
-                "w-full py-4 rounded-xl font-semibold text-lg transition-all duration-300 relative overflow-hidden group",
-                plan.popular
-                  ? "bg-gradient-to-r from-purple-600 to-violet-600 text-white hover:shadow-lg hover:shadow-purple-500/50"
-                  : "bg-white/[0.05] border border-white/[0.2] text-purple-200/80 hover:bg-white/[0.1] hover:text-white"
-              )}>
+              <button 
+                onClick={() => navigate(`/payment?plan=${encodeURIComponent(plan.name)}&cycle=${billingCycle}`)}
+                className={cn(
+                  "w-full py-4 rounded-xl font-semibold text-lg transition-all duration-300 relative overflow-hidden group",
+                  plan.popular
+                    ? "bg-gradient-to-r from-purple-600 to-violet-600 text-white hover:shadow-lg hover:shadow-purple-500/50"
+                    : "bg-white/[0.05] border border-white/[0.2] text-purple-200/80 hover:bg-white/[0.1] hover:text-white"
+                )}
+              >
                 <div className={cn(
                   "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300",
                   plan.popular

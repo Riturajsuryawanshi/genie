@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -130,7 +130,11 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ className }) => 
         body: formData,
       });
 
-      const sttData = await sttResponse.json();
+      if (!sttResponse.ok) {
+        throw new Error(`STT API error: ${sttResponse.status}`);
+      }
+      const sttText = await sttResponse.text();
+      const sttData = sttText ? JSON.parse(sttText) : { success: false };
 
       if (!sttData.success) {
         throw new Error(sttData.error || 'Transcription failed');
@@ -171,7 +175,11 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ className }) => 
         }),
       });
 
-      const gptData = await gptResponse.json();
+      if (!gptResponse.ok) {
+        throw new Error(`GPT API error: ${gptResponse.status}`);
+      }
+      const gptText = await gptResponse.text();
+      const gptData = gptText ? JSON.parse(gptText) : { success: false };
 
       if (!gptData.success) {
         throw new Error(gptData.error || 'AI response failed');

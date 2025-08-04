@@ -1,6 +1,9 @@
 import { Login1 } from "@/components/ui/login-1";
+import { useNavigate } from "react-router-dom";
 
 const LoginDemo = () => {
+  const navigate = useNavigate();
+  
   return (
     <Login1 
       heading="Welcome back to CallGenie"
@@ -14,6 +17,7 @@ const LoginDemo = () => {
       googleText="Sign in with Google"
       signupText="Don't have an account?"
       signupUrl="/signup"
+      onSuccess={() => navigate('/dashboard')}
     />
   );
 };

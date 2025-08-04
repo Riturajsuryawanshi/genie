@@ -1,0 +1,141 @@
+<svg width="200" height="80" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="phoneGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#A855F7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#C084FC;stop-opacity:1" />
+      <stop offset="30%" style="stop-color:#A855F7;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#F59E0B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F97316;stop-opacity:1" />
+    </linearGradient>
+    
+    <radialGradient id="glowEffect" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:0" />
+    </radialGradient>
+    
+    <!-- Filters -->
+    <filter id="glow">
+      <feMorphology operator="dilate" radius="2"/>
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <filter id="shadowFilter">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#7C3AED" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Background Glow -->
+  <circle cx="30" cy="40" r="25" fill="url(#glowEffect)" opacity="0.6"/>
+  
+  <!-- Magic Sparkles -->
+  <g opacity="0.8">
+    <!-- Large sparkle -->
+    <g transform="translate(50,15)">
+      <path d="M0,-8 L2,0 L0,8 L-2,0 Z" fill="#FDE047" opacity="0.9">
+        <animateTransform attributeName="transform" type="rotate" values="0;360" dur="4s" repeatCount="indefinite"/>
+      </path>
+      <path d="M-8,0 L0,2 L8,0 L0,-2 Z" fill="#FDE047" opacity="0.9">
+        <animateTransform attributeName="transform" type="rotate" values="0;360" dur="4s" repeatCount="indefinite"/>
+      </path>
+    </g>
+    
+    <!-- Small sparkles -->
+    <circle cx="55" cy="35" r="2" fill="#60A5FA" opacity="0.8">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="20" cy="20" r="1.5" fill="#F472B6" opacity="0.7">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="45" cy="55" r="1" fill="#34D399" opacity="0.6">
+      <animate attributeName="opacity" values="0.4;0.9;0.4" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Phone Icon with Genie Elements -->
+  <g transform="translate(15,20)">
+    <!-- Phone Body -->
+    <rect x="0" y="0" width="30" height="40" rx="6" ry="6" 
+          fill="url(#phoneGradient)" 
+          filter="url(#shadowFilter)"
+          stroke="#DDD6FE" stroke-width="1"/>
+    
+    <!-- Phone Screen -->
+    <rect x="3" y="6" width="24" height="28" rx="2" ry="2" fill="#1F2937" opacity="0.8"/>
+    
+    <!-- Genie Smoke Effect -->
+    <g opacity="0.7">
+      <path d="M15,0 Q20,-5 25,-8 Q30,-10 35,-5 Q40,0 35,5 Q30,3 25,0" 
+            fill="url(#phoneGradient)" opacity="0.6">
+        <animateTransform attributeName="transform" type="scale" values="1;1.1;1" dur="3s" repeatCount="indefinite"/>
+      </path>
+      <path d="M20,-2 Q25,-8 30,-12 Q35,-15 40,-10 Q45,-5 40,0" 
+            fill="url(#phoneGradient)" opacity="0.4">
+        <animateTransform attributeName="transform" type="scale" values="1;1.2;1" dur="4s" repeatCount="indefinite"/>
+      </path>
+    </g>
+    
+    <!-- Magic Wand -->
+    <g transform="translate(35,-5) rotate(25)">
+      <line x1="0" y1="0" x2="12" y2="0" stroke="#FDE047" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="12" cy="0" r="3" fill="#FDE047" opacity="0.8"/>
+      <circle cx="9" cy="-2" r="1" fill="#60A5FA" opacity="0.9">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+    
+    <!-- AI Circuit Pattern -->
+    <g opacity="0.6">
+      <circle cx="15" cy="15" r="2" fill="#60A5FA" stroke="#8B5CF6" stroke-width="1"/>
+      <line x1="15" y1="17" x2="15" y2="23" stroke="#8B5CF6" stroke-width="1"/>
+      <line x1="13" y1="15" x2="8" y2="15" stroke="#8B5CF6" stroke-width="1"/>
+      <line x1="17" y1="15" x2="22" y2="15" stroke="#8B5CF6" stroke-width="1"/>
+      <circle cx="8" cy="15" r="1" fill="#60A5FA"/>
+      <circle cx="22" cy="15" r="1" fill="#60A5FA"/>
+      <circle cx="15" cy="23" r="1" fill="#60A5FA"/>
+    </g>
+  </g>
+  
+  <!-- CallGenie Text -->
+  <g transform="translate(65,25)">
+    <!-- Call text -->
+    <text x="0" y="20" font-family="Arial, sans-serif" font-size="24" font-weight="bold" 
+          fill="url(#textGradient)" filter="url(#glow)">Call</text>
+    
+    <!-- Genie text with special styling -->
+    <text x="50" y="20" font-family="Arial, sans-serif" font-size="24" font-weight="bold" 
+          fill="url(#textGradient)" filter="url(#glow)">Genie</text>
+    
+    <!-- Magic underline -->
+    <path d="M0,25 Q30,30 60,25 Q90,20 125,25" 
+          stroke="url(#textGradient)" 
+          stroke-width="2" 
+          fill="none" 
+          opacity="0.8">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Subtitle -->
+    <text x="0" y="40" font-family="Arial, sans-serif" font-size="10" 
+          fill="#A855F7" opacity="0.8">AI Phone Assistant</text>
+  </g>
+  
+  <!-- Additional Floating Elements -->
+  <g opacity="0.6">
+    <circle cx="170" cy="25" r="3" fill="#8B5CF6" opacity="0.5">
+      <animate attributeName="cy" values="25;20;25" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <polygon points="180,40 185,50 175,50" fill="#A855F7" opacity="0.4">
+      <animateTransform attributeName="transform" type="rotate" values="0 180 45;360 180 45" dur="6s" repeatCount="indefinite"/>
+    </polygon>
+  </g>
+</svg>

@@ -1,4 +1,4 @@
-import React from 'react';
+// React import not needed with modern JSX transform
 import { motion } from 'framer-motion';
 import { Brain, Shield, MessageSquare, Star, ArrowLeft, Phone, Users, Zap, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
