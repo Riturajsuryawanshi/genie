@@ -129,8 +129,9 @@ CREATE TRIGGER update_voice_preferences_updated_at BEFORE UPDATE ON voice_prefer
 --   ('+91-9876543214')
 -- ON CONFLICT (number) DO NOTHING;
 
--- For now, using sample numbers for testing
+-- Add the specific phone number for CallGenie
 INSERT INTO phone_pool (number) VALUES 
+  ('+918035316321'),
   ('+91-9876543210'),
   ('+91-9876543211'),
   ('+91-9876543212'),

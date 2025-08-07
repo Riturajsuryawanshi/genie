@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Phone, Check, Star, Copy } from 'lucide-react';
+import { Phone, Check, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { SEO } from '@/components/SEO';
 
 const freeFeatures = [
   'Up to 10 free AI-powered calls',
@@ -89,8 +90,15 @@ export default function MyNumber() {
   }, [user?.id]);
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-yellow-100 via-indigo-100 to-rose-100 flex flex-col items-center justify-center py-12 px-4">
-      <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl p-10 flex flex-col items-center border-4 border-indigo-200 relative">
+    <>
+      <SEO 
+        title="My CallGenie Dashboard - AI Voice Assistant Management"
+        description="Manage your AI voice assistant, view call analytics, and access premium features. Track conversations, usage stats, and customize your CallGenie experience."
+        keywords="AI voice assistant dashboard, call analytics, voice AI management, phone automation dashboard"
+        url="https://callgenie.ai/my-number"
+      />
+      <div className="min-h-screen w-full bg-gradient-to-br from-yellow-100 via-indigo-100 to-rose-100 flex flex-col items-center justify-center py-12 px-4">
+        <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl p-10 flex flex-col items-center border-4 border-indigo-200 relative">
         <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-indigo-500 text-white px-8 py-2 rounded-full text-xl font-bold shadow-lg animate-bounce">This is your dedicated CallGenie User Portal</div>
         <h1 className="text-5xl font-extrabold text-indigo-700 mb-6 mt-12 text-center drop-shadow-lg">CallGenie Dashboard</h1>
         <Phone className="w-20 h-20 text-indigo-500 mb-4 animate-pulse" />
@@ -102,14 +110,25 @@ export default function MyNumber() {
           <>
             {/* User Profile Info */}
             {profile && (
-              <div className="w-full mb-8 p-6 rounded-2xl bg-indigo-50 border border-indigo-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                  <div className="text-xl font-bold text-indigo-800">{profile.full_name || 'User'}</div>
-                  <div className="text-lg text-gray-700">{profile.email}</div>
+              <div className="w-full mb-8 p-6 rounded-2xl bg-indigo-50 border border-indigo-200">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                  <div>
+                    <div className="text-xl font-bold text-indigo-800">{profile.full_name || profile.name || 'User'}</div>
+                    <div className="text-lg text-gray-700">{profile.email}</div>
+                  </div>
+                  <div className="text-lg text-indigo-700 font-semibold">Status: {profile.account_status || 'Active'}</div>
+                  {profile.trial_expires_at && (
+                    <div className="text-md text-rose-600">Trial expires: {new Date(profile.trial_expires_at).toLocaleDateString()}</div>
+                  )}
                 </div>
-                <div className="text-lg text-indigo-700 font-semibold">Status: {profile.account_status || 'N/A'}</div>
-                {profile.trial_expires_at && (
-                  <div className="text-md text-rose-600">Trial expires: {new Date(profile.trial_expires_at).toLocaleDateString()}</div>
+                {profile.phone_number && (
+                  <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border border-green-200 text-center">
+                    <div className="text-lg font-semibold text-green-800 mb-2 flex items-center justify-center gap-2">
+                      <Phone className="h-5 w-5" /> Your CallGenie Number
+                    </div>
+                    <div className="text-2xl font-mono font-bold text-green-900 mb-2">{profile.phone_number}</div>
+                    <div className="text-sm text-green-700">Call this number to test your AI assistant!</div>
+                  </div>
                 )}
               </div>
             )}
@@ -163,7 +182,8 @@ export default function MyNumber() {
             {premiumFeatures.map(f => <li key={f}>{f}</li>)}
           </ul>
         </div>
-        <Button variant="outline" className="mt-12 w-full text-lg" onClick={() => navigate(-1)}>Back to Dashboard</Button>
+          <Button variant="outline" className="mt-12 w-full text-lg" onClick={() => navigate(-1)}>Back to Dashboard</Button>
+        </div>
       </div>
       <style>{`
         .animate-glow {
@@ -174,6 +194,6 @@ export default function MyNumber() {
           100% { box-shadow: 0 0 32px #6366f1, 0 0 32px #f43f5e; }
         }
       `}</style>
-    </div>
+    </>
   );
-} 
+}

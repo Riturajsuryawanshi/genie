@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, MapPin, Phone, ArrowLeft, Send, MessageSquare, Clock, Users, Headphones, Globe, CheckCircle, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { SEO } from '@/components/SEO';
 
 export const Contact: React.FC = () => {
   const navigate = useNavigate();
@@ -136,7 +137,14 @@ export const Contact: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <>
+      <SEO 
+        title="Contact CallGenie - Get Support for AI Voice Assistant | Reach Our Team"
+        description="Contact CallGenie for support, demos, or questions about our AI voice assistant. Email us at supernovaind00@gmail.com or call +91 7089956401. We're here to help!"
+        keywords="contact CallGenie, AI voice assistant support, CallGenie customer service, phone automation help, voice AI contact"
+        url="https://callgenie.ai/contact"
+      />
+      <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <header className="px-4 lg:px-6 h-16 flex items-center border-b border-purple-500/20 bg-black/90 backdrop-blur-sm">
         <button 
@@ -462,6 +470,7 @@ export const Contact: React.FC = () => {
           </div>
         </motion.div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };

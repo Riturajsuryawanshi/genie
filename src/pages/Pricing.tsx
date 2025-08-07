@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Check, Star, ArrowLeft, Phone, Zap, Shield, Users, Crown, Rocket, Globe, HeadphonesIcon, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { SEO } from '@/components/SEO';
 
 export const Pricing: React.FC = () => {
   const navigate = useNavigate();
@@ -139,7 +140,14 @@ export const Pricing: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <>
+      <SEO 
+        title="CallGenie Pricing - AI Voice Assistant Plans | Start Free"
+        description="Choose the perfect CallGenie plan for your business. Start with our free trial, then scale with Starter (₹99/month), Professional (₹249/month), or Enterprise (₹449/month) plans."
+        keywords="AI voice assistant pricing, phone automation cost, voice AI plans, business phone system pricing, CallGenie pricing"
+        url="https://callgenie.ai/pricing"
+      />
+      <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <header className="px-4 lg:px-6 h-16 flex items-center border-b border-purple-500/20 bg-black/90 backdrop-blur-sm">
         <button 
@@ -387,6 +395,7 @@ export const Pricing: React.FC = () => {
           </div>
         </motion.div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };

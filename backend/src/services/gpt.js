@@ -1,31 +1,29 @@
 const OpenAI = require('openai');
-const supabase = require('./config/supabase');
+const User = require('../models/User');
+const Conversation = require('../models/Conversation');
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 /**
- * Get user conversation history from Supabase
+ * Get user conversation history from MongoDB
  * @param {string} userId - User ID
  * @param {number} limit - Number of recent messages to fetch
  * @returns {Promise<Array>}
  */
 async function getUserHistory(userId, limit = 10) {
   try {
-    const { data, error } = await supabase
-      .from('conversation_logs')
-      .select('user_message, ai_response, created_at')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
+    const conversations = await Conversation.find({ userId })
+      .select('userMessage aiResponse createdAt')
+      .sort({ createdAt: -1 })
       .limit(limit);
 
-    if (error) {
-      console.error('Error fetching user history:', error);
-      return [];
-    }
-
-    return data || [];
+    return conversations.map(conv => ({
+      user_message: conv.userMessage,
+      ai_response: conv.aiResponse,
+      created_at: conv.createdAt
+    }));
   } catch (error) {
     console.error('Error fetching user history:', error);
     return [];
@@ -33,24 +31,27 @@ async function getUserHistory(userId, limit = 10) {
 }
 
 /**
- * Get user context from Supabase
+ * Get user context from MongoDB
  * @param {string} phoneNumber - User's phone number
  * @returns {Promise<Object>}
  */
 async function getUserContext(phoneNumber) {
   try {
-    const { data, error } = await supabase
-      .from('users')
-      .select('id, name, email, phone_number, preferences')
-      .eq('phone_number', phoneNumber)
-      .single();
+    const user = await User.findOne({ phone: phoneNumber })
+      .select('_id name email phone preferences');
 
-    if (error) {
-      console.error('Error fetching user context:', error);
+    if (!user) {
+      console.log('User not found for phone:', phoneNumber);
       return null;
     }
 
-    return data;
+    return {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      phone_number: user.phone,
+      preferences: user.preferences || {}
+    };
   } catch (error) {
     console.error('Error fetching user context:', error);
     return null;
@@ -151,7 +152,7 @@ Respond naturally as SAATHI in a conversational voice style:`;
 }
 
 /**
- * Save conversation log to Supabase
+ * Save conversation log to MongoDB
  * @param {string} userId - User ID
  * @param {string} userMessage - User's message
  * @param {string} aiResponse - AI's response
@@ -159,20 +160,14 @@ Respond naturally as SAATHI in a conversational voice style:`;
  */
 async function saveConversationLog(userId, userMessage, aiResponse) {
   try {
-    const { error } = await supabase
-      .from('conversation_logs')
-      .insert({
-        user_id: userId,
-        user_message: userMessage,
-        ai_response: aiResponse,
-        created_at: new Date().toISOString()
-      });
+    const conversation = new Conversation({
+      userId,
+      userMessage,
+      aiResponse,
+      createdAt: new Date()
+    });
 
-    if (error) {
-      console.error('Error saving conversation log:', error);
-      return false;
-    }
-
+    await conversation.save();
     return true;
   } catch (error) {
     console.error('Error saving conversation log:', error);

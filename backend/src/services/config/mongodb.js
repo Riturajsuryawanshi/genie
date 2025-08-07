@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const connectMongoDB = async () => {
   try {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/callgenie';
+    const mongoURI = process.env.MONGODB_URL || process.env.MONGODB_URI || 'mongodb://localhost:27017/callgenie';
     
     await mongoose.connect(mongoURI, {
       useNewUrlParser: true,

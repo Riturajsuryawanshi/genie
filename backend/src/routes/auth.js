@@ -5,6 +5,51 @@ const supabase = require('../services/config/supabase');
 
 router.get('/health', (req, res) => res.json({ success: true, route: 'auth' }));
 
+// Helper function to assign phone number to user
+async function assignPhoneNumber(userId) {
+  try {
+    // Always assign the specific number +918035316321
+    const phoneNumber = '+918035316321';
+    
+    // Update user with the phone number
+    const { data: user, error } = await supabase
+      .from('users')
+      .update({ phone_number: phoneNumber })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error assigning phone number:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, phone_number: phoneNumber };
+  } catch (error) {
+    console.error('Error in assignPhoneNumber:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Helper function to get user's phone number
+async function getUserPhoneNumber(userId) {
+  try {
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('phone_number')
+      .eq('id', userId)
+      .single();
+
+    if (error || !user) {
+      return { success: false, error: 'User not found' };
+    }
+
+    return { success: true, phone_number: user.phone_number };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
 // POST /auth/onboard - onboard a new user
 router.post('/onboard', async (req, res) => {
   try {
@@ -20,14 +65,14 @@ router.post('/onboard', async (req, res) => {
       });
     }
 
-    // Create or update user in database
+    // Create or update user in database with phone number
     const { data: user, error } = await supabase
       .from('users')
       .upsert({
         id: userId,
         email: email,
         name: fullName,
-        account_status: 'active',
+        phone_number: '+918035316321',
         created_at: new Date().toISOString()
       }, {
         onConflict: 'id'
@@ -46,6 +91,7 @@ router.post('/onboard', async (req, res) => {
     res.json({ 
       success: true, 
       message: 'User onboarded successfully',
+      phone_number: '+918035316321',
       user: user
     });
   } catch (error) {
@@ -57,27 +103,6 @@ router.post('/onboard', async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
-
-=======
-// POST /auth/confirm - programmatically confirm a user's email
-router.post('/confirm', async (req, res) => {
-  const { user_id } = req.body;
-  if (!user_id) {
-    return res.status(400).json({ success: false, error: 'user_id is required' });
-  }
-  try {
-    // Directly update the auth.users table to set email_confirmed_at to now()
-    const { error } = await supabase.rpc('auth.confirm_user_email', { confirm_user_id: user_id });
-    if (error) {
-      return res.status(500).json({ success: false, error: error.message });
-    }
-    res.json({ success: true, message: 'User confirmed' });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message || 'Failed to confirm user' });
-  }
-});
-
 // GET /auth/phone/:userId - return user's assigned phone number, assign if missing
 router.get('/phone/:userId', async (req, res) => {
   const { userId } = req.params;
@@ -86,7 +111,7 @@ router.get('/phone/:userId', async (req, res) => {
     if (result.success && result.phone_number) {
       return res.json({ success: true, phone_number: result.phone_number });
     }
-    // If not found, assign a number
+    // If not found, assign the specific number
     result = await assignPhoneNumber(userId);
     if (result.success) {
       return res.json({ success: true, phone_number: result.phone_number });
@@ -97,7 +122,6 @@ router.get('/phone/:userId', async (req, res) => {
     res.status(500).json({ success: false, error: error.message || 'Internal server error' });
   }
 });
->>>>>>> e1801927d793f0b28aff106328f74bf9b730f52a
 
 // GET /auth/user/:userId - return user profile info
 router.get('/user/:userId', async (req, res) => {
@@ -105,7 +129,7 @@ router.get('/user/:userId', async (req, res) => {
   try {
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, email, full_name, account_status, trial_expires_at, created_at')
+      .select('id, email, name, phone_number, created_at')
       .eq('id', userId)
       .single();
     if (error || !user) {

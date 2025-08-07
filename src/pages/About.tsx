@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion';
 import { Brain, Shield, MessageSquare, Star, ArrowLeft, Phone, Users, Zap, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { SEO } from '@/components/SEO';
 
 export const About: React.FC = () => {
   const navigate = useNavigate();
@@ -12,7 +13,14 @@ export const About: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <>
+      <SEO 
+        title="About CallGenie - AI Voice Assistant Company | Our Mission & Vision"
+        description="Learn about CallGenie's mission to revolutionize business communication with AI-powered voice assistants. Discover our story, values, and commitment to innovation."
+        keywords="about CallGenie, AI voice assistant company, business communication innovation, voice AI technology, CallGenie mission"
+        url="https://callgenie.ai/about"
+      />
+      <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <header className="px-4 lg:px-6 h-16 flex items-center border-b border-purple-500/20 bg-black/90 backdrop-blur-sm">
         <button 
@@ -280,6 +288,7 @@ export const About: React.FC = () => {
           </div>
         </motion.div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };

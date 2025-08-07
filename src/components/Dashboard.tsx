@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Phone, Copy, CheckCircle, Loader2, Sparkles, Star, Shield, Headphones, MessageCircle, Play, ArrowRight, Users, Clock, Bot, Zap, HelpCircle, Settings, BarChart3, Send, Minimize2, Maximize2, Video, FileText, Download, TrendingUp, Calendar, Globe, Brain, Mic } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface DashboardProps {
   activeTab: string;
@@ -97,6 +98,8 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
     }, 1000 + Math.random() * 1000);
   };
 
+  const { user } = useAuth();
+
   const handleTryCallGenie = async () => {
     setShowCallGenie(true);
     setLoading(true);
@@ -115,7 +118,24 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
       setStep(i + 1);
     }
 
-    setPhoneNumber('+1 (555) 847-2639');
+    // Fetch the actual phone number from backend
+    if (user?.id) {
+      try {
+        const response = await fetch(`/api/auth/phone/${user.id}`);
+        const data = await response.json();
+        if (data.success && data.phone_number) {
+          setPhoneNumber(data.phone_number);
+        } else {
+          setPhoneNumber('+918035316321'); // fallback
+        }
+      } catch (error) {
+        console.error('Failed to fetch phone number:', error);
+        setPhoneNumber('+918035316321'); // fallback
+      }
+    } else {
+      setPhoneNumber('+918035316321'); // fallback for non-authenticated users
+    }
+    
     setLoading(false);
   };
 
