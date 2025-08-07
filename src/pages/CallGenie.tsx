@@ -1,5 +1,8 @@
-import { useState } from 'react';
-import { Phone, Brain, BarChart3, MessageSquare, Shield, Star, User, HelpCircle, ArrowRight, Mail } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Phone, Brain, BarChart3, MessageSquare, Shield, Star, User, HelpCircle, ArrowRight, Mail, Copy } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { SEO } from '@/components/SEO';
 
 const TRIAL_DURATION_DAYS = 7;
 
@@ -52,12 +55,16 @@ const comparison = [
 ];
 
 const CallGenie: React.FC = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [callGenieTrial, setCallGenieTrial] = useState(() => {
     const stored = localStorage.getItem('callGenieTrial');
     return stored ? JSON.parse(stored) : null;
   });
   const [showDemo, setShowDemo] = useState(false);
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
+  const [showPhoneNumber, setShowPhoneNumber] = useState(false);
 
   // Personalization (placeholder)
   const userName = 'User'; // Replace with real user name if available
@@ -90,12 +97,42 @@ const CallGenie: React.FC = () => {
     };
   });
 
+  // Fetch phone number when user is available
+  useEffect(() => {
+    if (user?.id) {
+      fetchPhoneNumber();
+    }
+  }, [user?.id]);
+
+  const fetchPhoneNumber = async () => {
+    try {
+      const response = await fetch(`/api/auth/phone/${user?.id}`);
+      const data = await response.json();
+      if (data.success && data.phone_number) {
+        setPhoneNumber(data.phone_number);
+      }
+    } catch (error) {
+      console.error('Failed to fetch phone number:', error);
+    }
+  };
+
+  const copyPhoneNumber = () => {
+    if (phoneNumber) {
+      navigator.clipboard.writeText(phoneNumber);
+      toast({
+        title: "Copied!",
+        description: "Phone number copied to clipboard",
+      });
+    }
+  };
+
   const startTrial = () => {
     const start = Date.now();
     const end = start + TRIAL_DURATION_DAYS * 24 * 60 * 60 * 1000;
     const trial = { start, end };
     setCallGenieTrial(trial);
     localStorage.setItem('callGenieTrial', JSON.stringify(trial));
+    setShowPhoneNumber(true);
   };
 
   const trialActive = callGenieTrial && Date.now() < callGenieTrial.end;
@@ -110,7 +147,14 @@ const CallGenie: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-violet-50">
+    <>
+      <SEO 
+        title="Try CallGenie Now - AI Voice Assistant | Free 7-Day Trial"
+        description="Start your AI phone assistant in 60 seconds. Get intelligent voice conversations, natural language processing, and 24/7 availability. No credit card required for free trial."
+        keywords="try AI voice assistant, free trial phone automation, AI calling system, voice AI demo, automated phone system"
+        url="https://callgenie.ai/call-genie"
+      />
+      <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-violet-50">
       <div className="w-full h-full bg-white/70 rounded-none shadow-none p-0 flex flex-col items-center justify-center">
         {/* Personalization */}
         <h2 className="text-3xl font-bold mb-2 flex items-center justify-center gap-2 mt-8"><Phone className="h-7 w-7 text-indigo-500" /> Call Genie</h2>
@@ -224,11 +268,30 @@ const CallGenie: React.FC = () => {
             <Mail className="h-5 w-5" /> Contact Support
           </a>
         </div>
+        {/* Phone Number Display */}
+        {(trialActive || showPhoneNumber) && phoneNumber && (
+          <div className="mb-6 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border-2 border-indigo-200 text-center">
+            <h3 className="text-2xl font-bold text-indigo-700 mb-2 flex items-center justify-center gap-2">
+              <Phone className="h-6 w-6" /> Your CallGenie Number
+            </h3>
+            <div className="text-3xl font-mono font-bold text-indigo-900 mb-3">{phoneNumber}</div>
+            <p className="text-indigo-700 mb-4">Call this number to test your AI assistant!</p>
+            <button 
+              onClick={copyPhoneNumber}
+              className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-semibold shadow hover:bg-indigo-600 flex items-center gap-2 mx-auto"
+            >
+              <Copy className="h-4 w-4" /> Copy Number
+            </button>
+          </div>
+        )}
+        
         {/* Trial Start/Expired UI */}
         {!trialActive && !trialExpired && (
           <>
             <p className="mb-6">Start your free 7-day trial to unlock Call Genie features!</p>
-            <button className="px-6 py-3 bg-indigo-500 text-white rounded-lg font-semibold shadow hover:bg-indigo-600" onClick={startTrial}>Start Free Trial</button>
+            <button className="px-6 py-3 bg-indigo-500 text-white rounded-lg font-semibold shadow hover:bg-indigo-600" onClick={startTrial}>
+              {user ? 'Try CallGenie Now' : 'Start Free Trial'}
+            </button>
           </>
         )}
         {trialExpired && (
@@ -239,7 +302,8 @@ const CallGenie: React.FC = () => {
           </>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

@@ -79,10 +79,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               });
 
               const data = await response.json();
-              if (data.success) {
+              if (data.success && data.phone_number) {
                 toast({
                   title: "Welcome to CallGenie!",
-                  description: `Successfully signed in as ${session?.user?.email}. Your phone number: ${data.phone_number}`,
+                  description: `Successfully signed in as ${session?.user?.email}. Your CallGenie number: ${data.phone_number}`,
                 });
               } else {
                 toast({

@@ -10,7 +10,10 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB
-connectMongoDB();
+connectMongoDB().catch(err => {
+  console.error('MongoDB connection failed:', err);
+  process.exit(1);
+});
 
 // Import routes
 const authRoutes = require('./routes/auth-mongodb'); // Use MongoDB auth routes
@@ -19,6 +22,7 @@ const gptRoutes = require('./routes/gpt');
 const sttRoutes = require('./routes/stt');
 const callRoute = require('./routes/call');
 const contactRoutes = require('./routes/contact');
+const webhookRoutes = require('./routes/webhook');
 
 // Mount routes
 app.use('/api/auth', authRoutes);
@@ -27,6 +31,7 @@ app.use('/api/gpt', gptRoutes);
 app.use('/api/stt', sttRoutes);
 app.use('/api/call', callRoute);
 app.use('/api/contact', contactRoutes);
+app.use('/api/webhook', webhookRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
