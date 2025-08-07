@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Phone, Copy, CheckCircle, Loader2, Sparkles, Star, Shield, Headphones, MessageCircle, Play, ArrowRight, Users, Clock, Bot, Zap, HelpCircle, Settings, BarChart3, Send, Minimize2, Maximize2, Video, FileText, Download, TrendingUp, Calendar, Globe, Brain, Mic } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '@/config/api';
 
 interface DashboardProps {
   activeTab: string;
@@ -33,6 +35,7 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
   const [chatMinimized, setChatMinimized] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const smartResponses: { [key: string]: string } = {
     'hello': "Hello! I'm here to help you with CallGenie. What would you like to know?",
@@ -101,6 +104,12 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
   const { user } = useAuth();
 
   const handleTryCallGenie = async () => {
+    // Check if user is authenticated
+    if (!user) {
+      navigate('/signup');
+      return;
+    }
+    
     setShowCallGenie(true);
     setLoading(true);
     setStep(0);
@@ -121,7 +130,7 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
     // Fetch the actual phone number from backend
     if (user?.id) {
       try {
-        const response = await fetch(`/api/auth/phone/${user.id}`);
+        const response = await fetch(`${API_BASE_URL}/auth/phone/${user.id}`);
         const data = await response.json();
         if (data.success && data.phone_number) {
           setPhoneNumber(data.phone_number);
@@ -468,9 +477,7 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
 
         {/* Enhanced Live Chat Widget */}
         {showLiveChat && (
-          <div className={`fixed bottom-4 right-4 bg-black border border-gray-600 rounded z-50 ${
-            chatMinimized ? 'w-80 h-16' : 'w-80 h-96'
-          }`}>
+          <div className="fixed bottom-4 right-4 bg-black border border-gray-600 rounded z-50 w-80 h-96">
             <div className="flex items-center justify-between p-4 border-b border-gray-600 bg-black">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center">
@@ -484,28 +491,17 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
                   <p className="text-xs text-gray-400">Ask me anything!</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-1">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => setChatMinimized(!chatMinimized)}
-                  className="text-gray-400 p-1"
-                >
-                  {chatMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => setShowLiveChat(false)}
-                  className="text-gray-400 p-1"
-                >
-                  ×
-                </Button>
-              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowLiveChat(false)}
+                className="text-gray-400 p-1"
+              >
+                ×
+              </Button>
             </div>
             
-            {!chatMinimized && (
-              <>
+            <>
                 <div className="p-4 h-64 overflow-y-auto space-y-3 bg-black">
                   {chatMessages.map((message) => (
                     <div key={message.id} className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}>
@@ -556,8 +552,7 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
                     </Button>
                   </div>
                 </div>
-              </>
-            )}
+            </>
           </div>
         )}
       </div>

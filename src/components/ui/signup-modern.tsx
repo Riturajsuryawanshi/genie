@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from 'lucide-react';
+import { API_BASE_URL } from '@/config/api';
 
 interface SignupModernProps {
   heading?: string;
@@ -33,7 +34,7 @@ const SignupModern = ({
     setFormError(null);
     
     try {
-      const response = await fetch('/api/auth/signup', {
+      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

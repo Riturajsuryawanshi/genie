@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { API_BASE_URL } from '@/config/api';
 
 interface AuthContextType {
   user: User | null;
@@ -66,7 +67,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Assign phone number to user
           if (session?.user?.id) {
             try {
-              const response = await fetch('/api/auth/onboard', {
+              const response = await fetch(`${API_BASE_URL}/auth/onboard`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',

@@ -3,6 +3,7 @@ import { Phone, Brain, BarChart3, MessageSquare, Shield, Star, User, HelpCircle,
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
+import { API_BASE_URL } from '@/config/api';
 
 const TRIAL_DURATION_DAYS = 7;
 
@@ -106,7 +107,7 @@ const CallGenie: React.FC = () => {
 
   const fetchPhoneNumber = async () => {
     try {
-      const response = await fetch(`/api/auth/phone/${user?.id}`);
+      const response = await fetch(`${API_BASE_URL}/auth/phone/${user?.id}`);
       const data = await response.json();
       if (data.success && data.phone_number) {
         setPhoneNumber(data.phone_number);
