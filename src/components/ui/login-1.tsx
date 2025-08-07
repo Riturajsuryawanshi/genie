@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
+import { API_BASE_URL } from '@/config/api';
 
 interface Login1Props {
   heading?: string;
@@ -46,7 +47,7 @@ const Login1 = ({
     setFormError(null);
     
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

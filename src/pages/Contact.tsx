@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Mail, MapPin, Phone, ArrowLeft, Send, MessageSquare, Clock, Users, Headphones, Globe, CheckCircle, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { SEO } from '@/components/SEO';
+import { API_BASE_URL } from '@/config/api';
 
 export const Contact: React.FC = () => {
   const navigate = useNavigate();
@@ -34,22 +35,17 @@ export const Contact: React.FC = () => {
     setIsSubmitting(true);
     setError('');
 
-    // The original fetch() call to '/api/contact' was causing a network error
-    // because there is no backend API route set up to handle it.
-    // The following code simulates the API call for demonstration purposes.
-    console.log('Simulating form submission with data:', formData);
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
-
     try {
-      // In a real app, you would have your fetch() call here.
-      // We'll simulate a successful response. Change to 'false' to test error handling.
-      const mockSuccess = true;
+      const response = await fetch(`${API_BASE_URL}/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-      if (mockSuccess) {
+      if (response.ok) {
         setIsSubmitted(true);
-        console.log('Message sent successfully: (Simulated)');
-
-        // Reset form after 5 seconds
         setTimeout(() => {
           setIsSubmitted(false);
           setFormData({
@@ -61,8 +57,7 @@ export const Contact: React.FC = () => {
           });
         }, 5000);
       } else {
-        // Simulate an error response from the server
-        setError('Failed to send message. Please try again. (Simulated)');
+        setError('Failed to send message. Please try again.');
       }
     } catch (error) {
       console.error('Network error:', error);

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
+import { API_BASE_URL } from '@/config/api';
 
 const freeFeatures = [
   'Up to 10 free AI-powered calls',
@@ -55,22 +56,22 @@ export default function MyNumber() {
     setLoading(true);
     setError('');
     Promise.all([
-      fetch(`/api/auth/user/${user.id}`).then(async res => {
+      fetch(`${API_BASE_URL}/auth/user/${user.id}`).then(async res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const text = await res.text();
         return text ? JSON.parse(text) : {};
       }),
-      fetch(`/api/auth/usage/${user.id}`).then(async res => {
+      fetch(`${API_BASE_URL}/auth/usage/${user.id}`).then(async res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const text = await res.text();
         return text ? JSON.parse(text) : {};
       }),
-      fetch(`/api/auth/activity/${user.id}`).then(async res => {
+      fetch(`${API_BASE_URL}/auth/activity/${user.id}`).then(async res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const text = await res.text();
         return text ? JSON.parse(text) : {};
       }),
-      fetch(`/api/auth/plan/${user.id}`).then(async res => {
+      fetch(`${API_BASE_URL}/auth/plan/${user.id}`).then(async res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const text = await res.text();
         return text ? JSON.parse(text) : {};

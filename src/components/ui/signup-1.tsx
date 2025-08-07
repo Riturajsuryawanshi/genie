@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from 'lucide-react';
+import { API_BASE_URL } from '@/config/api';
 
 interface Signup1Props {
   heading?: string;
@@ -42,7 +43,7 @@ const Signup1 = ({
     setFormError(null);
     
     try {
-      const response = await fetch('/api/auth/signup', {
+      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -81,12 +82,16 @@ const Signup1 = ({
       
       onSuccess?.();
     } catch (error: unknown) {
+      const errorMessage = error instanceof Error && error.message.includes('fetch') 
+        ? 'Backend server is not running. Please start the backend server on port 4000.'
+        : error instanceof Error ? error.message : 'Please try again with valid credentials.';
+      
       if (!formError) {
-        setFormError(error instanceof Error ? error.message : 'Please try again with valid credentials.');
+        setFormError(errorMessage);
       }
       toast({
         title: 'Signup failed',
-        description: error instanceof Error ? error.message : 'Please try again with valid credentials.',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
