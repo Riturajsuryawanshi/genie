@@ -77,10 +77,13 @@ const Signup1 = ({
         description: 'You have been signed up successfully.',
       });
       
-      // Refresh the page to update auth context
-      window.location.reload();
-      
+      // Call onSuccess first, then reload to ensure proper navigation
       onSuccess?.();
+      
+      // Small delay to ensure navigation happens before reload
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error && error.message.includes('fetch') 
         ? 'Backend server is not running. Please start the backend server on port 4000.'

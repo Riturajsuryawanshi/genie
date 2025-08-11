@@ -12,7 +12,8 @@ import { SaathiPage } from "./components/SaathiPage";
 import HeroDemo from "./pages/HeroDemo";
 import CallGenie from './pages/CallGenie';
 import MyNumber from './pages/MyNumber';
-import { Dashboard } from './components/Dashboard';
+import { DashboardWrapper } from './components/DashboardWrapper';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { About } from './pages/About';
 import { Pricing } from './pages/Pricing';
 import { Payment } from './pages/Payment';
@@ -31,7 +32,11 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <DashboardWrapper />
+              </ProtectedRoute>
+            } />
             <Route path="/login" element={<LoginDemo />} />
             <Route path="/signup" element={<SignupDemo />} />
             <Route path="/saathi" element={<SaathiPage />} />

@@ -7,6 +7,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '@/config/api';
+import { isUserAuthenticated } from '@/utils/auth';
+import { getCallGenieNumber } from '@/utils/config';
 
 interface DashboardProps {
   activeTab: string;
@@ -104,11 +106,19 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
   const { user } = useAuth();
 
   const handleTryCallGenie = async () => {
-    // Check if user is authenticated
-    if (!user) {
+    console.log('User state:', user); // Debug log
+    
+    // Check for authentication from multiple sources
+    const isAuthenticated = user || isUserAuthenticated();
+    
+    if (!isAuthenticated) {
+      console.log('No authentication found, redirecting to signup');
       navigate('/signup');
       return;
     }
+    
+    console.log('User authenticated, proceeding with CallGenie setup');
+    // If user is authenticated, proceed with CallGenie setup
     
     setShowCallGenie(true);
     setLoading(true);
@@ -127,23 +137,8 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
       setStep(i + 1);
     }
 
-    // Fetch the actual phone number from backend
-    if (user?.id) {
-      try {
-        const response = await fetch(`${API_BASE_URL}/auth/phone/${user.id}`);
-        const data = await response.json();
-        if (data.success && data.phone_number) {
-          setPhoneNumber(data.phone_number);
-        } else {
-          setPhoneNumber('+918035316321'); // fallback
-        }
-      } catch (error) {
-        console.error('Failed to fetch phone number:', error);
-        setPhoneNumber('+918035316321'); // fallback
-      }
-    } else {
-      setPhoneNumber('+918035316321'); // fallback for non-authenticated users
-    }
+    // Set phone number based on environment
+    setPhoneNumber(getCallGenieNumber());
     
     setLoading(false);
   };

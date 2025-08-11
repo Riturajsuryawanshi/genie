@@ -43,11 +43,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Check for custom auth token
       const customUserData = localStorage.getItem('user');
-      if (customUserData) {
+      const authToken = localStorage.getItem('authToken');
+      if (customUserData && authToken) {
         try {
-          setCustomUser(JSON.parse(customUserData));
+          const userData = JSON.parse(customUserData);
+          setCustomUser(userData);
+          // Set as main user if no Supabase user
+          if (!session?.user) {
+            setUser(userData as any);
+          }
         } catch (error) {
           console.error('Error parsing custom user data:', error);
+          // Clear invalid data
+          localStorage.removeItem('user');
+          localStorage.removeItem('authToken');
         }
       }
       
@@ -64,47 +73,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setLoading(false);
 
         if (event === 'SIGNED_IN') {
-          // Assign phone number to user
-          if (session?.user?.id) {
-            try {
-              const response = await fetch(`${API_BASE_URL}/auth/onboard`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  user_id: session.user.id,
-                  email: session.user.email,
-                  name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || null
-                }),
-              });
-
-              const data = await response.json();
-              if (data.success && data.phone_number) {
-                toast({
-                  title: "Welcome to CallGenie!",
-                  description: `Successfully signed in as ${session?.user?.email}. Your CallGenie number: ${data.phone_number}`,
-                });
-              } else {
-                toast({
-                  title: "Welcome to CallGenie!",
-                  description: `Successfully signed in as ${session?.user?.email}`,
-                });
-              }
-            } catch (error) {
-              console.error('Failed to assign phone number:', error);
-              toast({
-                title: "Welcome to CallGenie!",
-                description: `Successfully signed in as ${session?.user?.email}`,
-              });
-            }
-          } else {
-            toast({
-              title: "Welcome to CallGenie!",
-              description: `Successfully signed in as ${session?.user?.email}`,
-            });
-          }
+          toast({
+            title: "Welcome to CallGenie!",
+            description: `Successfully signed in as ${session?.user?.email}`,
+          });
         } else if (event === 'SIGNED_OUT') {
+          // Clear all auth data on sign out
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('user');
+          setCustomUser(null);
           toast({
             title: "Signed out",
             description: "You have been successfully signed out.",
@@ -119,14 +96,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signInWithGoogle = async () => {
     try {
       setLoading(true);
+      
+      // Get the current origin dynamically
+      const redirectUrl = `${window.location.origin}/dashboard`;
+      console.log('Google OAuth redirect URL:', redirectUrl);
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: redirectUrl,
         },
       });
 
       if (error) {
+        console.error('Google OAuth error:', error);
         throw error;
       }
     } catch (error) {
