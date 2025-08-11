@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 // Import MongoDB connection
@@ -12,7 +13,10 @@ app.use(express.json());
 // Connect to MongoDB
 connectMongoDB().catch(err => {
   console.error('MongoDB connection failed:', err);
-  process.exit(1);
+  // Don't exit in production, just log the error
+  if (process.env.NODE_ENV !== 'production') {
+    process.exit(1);
+  }
 });
 
 // Import routes
@@ -39,6 +43,7 @@ app.get('/health', (req, res) => {
     success: true,
     message: 'SAATHI Backend API is running',
     timestamp: new Date().toISOString(),
+    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     services: {
       auth: 'active',
       webhook: 'active',

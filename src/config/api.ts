@@ -1,12 +1,7 @@
-// API configuration for different environments
+// API configuration - always use Render backend
 const getApiBaseUrl = () => {
-  // In production, use environment variable or relative path
-  if (import.meta.env.PROD) {
-    return import.meta.env.VITE_API_BASE_URL || '/api';
-  }
-  
-  // In development, use localhost
-  return 'http://localhost:4000/api';
+  // Always use Render backend (works for both localhost and production)
+  return 'https://genie-0rwj.onrender.com/api';
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -39,7 +34,7 @@ export const apiRequest = async (endpoint: string, options: RequestInit = {}) =>
     return text ? JSON.parse(text) : { success: false };
   } catch (error) {
     if (error instanceof TypeError && error.message.includes('fetch')) {
-      throw new Error('Cannot connect to backend server.');
+      throw new Error('Backend is starting up. Please wait 30-60 seconds and try again.');
     }
     throw error;
   }

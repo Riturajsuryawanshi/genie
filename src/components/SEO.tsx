@@ -12,7 +12,7 @@ interface SEOProps {
 export const SEO = ({ 
   title = "CallGenie - AI-Powered Voice Assistant",
   description = "Get your AI phone assistant in 60 seconds. CallGenie provides intelligent voice conversations, 24/7 availability, and natural language processing. Try free for 7 days.",
-  keywords = "AI voice assistant, phone automation, voice AI, call handling, business phone system",
+  keywords = "AI voice assistant, phone automation, voice AI, call handling, business phone system, calling agent, callgenie, ai agent, virtual assistant, automated calling, phone bot, voice bot, ai calling system, intelligent phone assistant, conversational AI, phone AI, voice automation, smart calling, ai receptionist, virtual phone agent, automated phone system, ai customer service, voice recognition, speech AI, phone intelligence",
   image = "https://callgenie.ai/logo.png",
   url = "https://callgenie.ai",
   type = "website"
