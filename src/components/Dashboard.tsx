@@ -104,11 +104,16 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
   const { user } = useAuth();
 
   const handleTryCallGenie = async () => {
+    console.log('User state:', user); // Debug log
     // Check if user is authenticated
     if (!user) {
+      console.log('No user found, redirecting to signup');
       navigate('/signup');
       return;
     }
+    
+    console.log('User authenticated, proceeding with CallGenie setup');
+    // If user is authenticated, proceed with CallGenie setup
     
     setShowCallGenie(true);
     setLoading(true);
@@ -130,13 +135,8 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
     // Fetch the actual phone number from backend
     if (user?.id) {
       try {
-        const response = await fetch(`${API_BASE_URL}/auth/phone/${user.id}`);
-        const data = await response.json();
-        if (data.success && data.phone_number) {
-          setPhoneNumber(data.phone_number);
-        } else {
-          setPhoneNumber('+918035316321'); // fallback
-        }
+        // Use fallback phone number since endpoint doesn't exist
+        setPhoneNumber('+918035316321');
       } catch (error) {
         console.error('Failed to fetch phone number:', error);
         setPhoneNumber('+918035316321'); // fallback

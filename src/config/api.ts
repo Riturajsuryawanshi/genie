@@ -10,6 +10,8 @@ const API_BASE_URL = getApiBaseUrl();
 export const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
   
+  console.log('API Request:', url); // Debug log
+  
   try {
     const response = await fetch(url, {
       headers: {
@@ -22,17 +24,20 @@ export const apiRequest = async (endpoint: string, options: RequestInit = {}) =>
     // Check if response is HTML (likely a 404 page)
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('text/html')) {
+      console.error('API endpoint not found:', url);
       throw new Error('API endpoint not found. Please check your backend deployment.');
     }
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error('API Error:', url, errorText);
       throw new Error(errorText || `HTTP ${response.status}`);
     }
 
     const text = await response.text();
     return text ? JSON.parse(text) : { success: false };
   } catch (error) {
+    console.error('Fetch Error:', url, error);
     if (error instanceof TypeError && error.message.includes('fetch')) {
       throw new Error('Backend is starting up. Please wait 30-60 seconds and try again.');
     }

@@ -106,15 +106,8 @@ const CallGenie: React.FC = () => {
   }, [user?.id]);
 
   const fetchPhoneNumber = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/phone/${user?.id}`);
-      const data = await response.json();
-      if (data.success && data.phone_number) {
-        setPhoneNumber(data.phone_number);
-      }
-    } catch (error) {
-      console.error('Failed to fetch phone number:', error);
-    }
+    // Use fallback phone number since endpoint doesn't exist
+    setPhoneNumber('+918035316321');
   };
 
   const copyPhoneNumber = () => {
