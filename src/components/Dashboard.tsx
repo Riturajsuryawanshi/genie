@@ -7,6 +7,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '@/config/api';
+import { isUserAuthenticated } from '@/utils/auth';
+import { getCallGenieNumber } from '@/utils/config';
 
 interface DashboardProps {
   activeTab: string;
@@ -105,9 +107,12 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
 
   const handleTryCallGenie = async () => {
     console.log('User state:', user); // Debug log
-    // Check if user is authenticated
-    if (!user) {
-      console.log('No user found, redirecting to signup');
+    
+    // Check for authentication from multiple sources
+    const isAuthenticated = user || isUserAuthenticated();
+    
+    if (!isAuthenticated) {
+      console.log('No authentication found, redirecting to signup');
       navigate('/signup');
       return;
     }
@@ -132,18 +137,8 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
       setStep(i + 1);
     }
 
-    // Fetch the actual phone number from backend
-    if (user?.id) {
-      try {
-        // Use fallback phone number since endpoint doesn't exist
-        setPhoneNumber('+918035316321');
-      } catch (error) {
-        console.error('Failed to fetch phone number:', error);
-        setPhoneNumber('+918035316321'); // fallback
-      }
-    } else {
-      setPhoneNumber('+918035316321'); // fallback for non-authenticated users
-    }
+    // Set phone number based on environment
+    setPhoneNumber(getCallGenieNumber());
     
     setLoading(false);
   };

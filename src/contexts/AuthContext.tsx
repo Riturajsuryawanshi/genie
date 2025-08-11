@@ -54,6 +54,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
         } catch (error) {
           console.error('Error parsing custom user data:', error);
+          // Clear invalid data
+          localStorage.removeItem('user');
+          localStorage.removeItem('authToken');
         }
       }
       
@@ -70,19 +73,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setLoading(false);
 
         if (event === 'SIGNED_IN') {
-          // Assign phone number to user
-          if (session?.user?.id) {
-            toast({
-              title: "Welcome to CallGenie!",
-              description: `Successfully signed in as ${session?.user?.email}`,
-            });
-          } else {
-            toast({
-              title: "Welcome to CallGenie!",
-              description: `Successfully signed in as ${session?.user?.email}`,
-            });
-          }
+          toast({
+            title: "Welcome to CallGenie!",
+            description: `Successfully signed in as ${session?.user?.email}`,
+          });
         } else if (event === 'SIGNED_OUT') {
+          // Clear all auth data on sign out
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('user');
+          setCustomUser(null);
           toast({
             title: "Signed out",
             description: "You have been successfully signed out.",
@@ -97,14 +96,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signInWithGoogle = async () => {
     try {
       setLoading(true);
+      
+      // Get the current origin dynamically
+      const redirectUrl = `${window.location.origin}/dashboard`;
+      console.log('Google OAuth redirect URL:', redirectUrl);
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: redirectUrl,
         },
       });
 
       if (error) {
+        console.error('Google OAuth error:', error);
         throw error;
       }
     } catch (error) {
