@@ -97,14 +97,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setLoading(true);
       
-      // Get the current origin dynamically
-      const redirectUrl = `${window.location.origin}/dashboard`;
+      // Use production domain for redirect
+      const redirectUrl = window.location.hostname === 'localhost' 
+        ? `${window.location.origin}/dashboard`
+        : `${window.location.origin}/dashboard`;
       console.log('Google OAuth redirect URL:', redirectUrl);
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         },
       });
 
