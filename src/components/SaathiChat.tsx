@@ -4,8 +4,7 @@ import { Send, User, Bot, Loader2, Image as ImageIcon, Brain, Sparkles, MessageC
 import { chatHistoryService } from '@/services/chatHistory';
 import './SaathiChat.css';
 
-// IMPORTANT: Replace this with your real Gemini API key from https://aistudio.google.com/app/apikey
-const GEMINI_API_KEY = "AIzaSyDj70boDeXkCkSaUVWpvn6-mza8ckSk_hw";
+
 
 interface Message {
   id: string;
@@ -120,81 +119,71 @@ export const SaathiChat: React.FC = () => {
 
 
 
-  // Send message to Gemini API
+  // Send message to backend API
   const sendMessage = async () => {
     const prompt = userInput.trim();
-    const hasImage = selectedImageBase64 !== null;
-    if (!prompt && !hasImage) {
-      showMessageBox('Input Required', 'Please enter a message or upload an image.');
+    if (!prompt) {
+      showMessageBox('Input Required', 'Please enter a message.');
       return;
     }
+    
     // Add user message
     setMessages((prev) => [
       ...prev,
-      { id: Date.now().toString(), text: prompt || (hasImage ? 'Image uploaded' : ''), imageUrl: hasImage ? `data:image/png;base64,${selectedImageBase64}` : undefined, isUser: true, timestamp: new Date() }
+      { id: Date.now().toString(), text: prompt, isUser: true, timestamp: new Date() }
     ]);
     setUserInput('');
     setLoading(true);
-    setSelectedImageBase64(null);
+    
     try {
-      // Gemini API expects a 'contents' array with parts
-      const parts: any[] = [];
-      if (prompt) parts.push({ text: prompt });
-      if (hasImage && selectedImageBase64) {
-        parts.push({
-          inlineData: {
-            mimeType: 'image/png',
-            data: selectedImageBase64,
-          },
-        });
-      }
-      const payload = { contents: [{ role: 'user', parts }] };
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`;
-      const response = await fetch(apiUrl, {
+      const conversationHistory = messages.slice(1).map(msg => ({
+        role: msg.isUser ? 'user' : 'assistant',
+        content: msg.text || ''
+      }));
+
+      const response = await fetch('http://localhost:4000/api/gpt/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ 
+          message: prompt,
+          conversationHistory 
+        })
       });
+      
       if (!response.ok) {
-        throw new Error(`Gemini API error: ${response.status}`);
+        throw new Error(`API error: ${response.status}`);
       }
-      const text = await response.text();
-      const result = text ? JSON.parse(text) : null;
-      if (
-        result.candidates &&
-        result.candidates.length > 0 &&
-        result.candidates[0].content &&
-        result.candidates[0].content.parts &&
-        result.candidates[0].content.parts.length > 0
-      ) {
-        const assistantText = result.candidates[0].content.parts[0].text;
+      
+      const result = await response.json();
+      
+      if (result.success && result.response) {
+        const assistantText = result.response;
         setMessages((prev) => [
           ...prev,
-          { id: Date.now().toString(), text: assistantText, isUser: false, timestamp: new Date() },
+          { id: Date.now().toString(), text: assistantText, isUser: false, timestamp: new Date() }
         ]);
         
         // Save conversation to database
         if (user?.id) {
           await chatHistoryService.saveConversation(user.id, prompt, assistantText);
-          // Reload chat history
           const history = await chatHistoryService.getChatHistory(user.id);
           setChatHistories(history);
         }
-
       } else {
-        const errorMsg = 'Error: Could not get a valid response from the AI. Please try again.';
-        setMessages((prev) => [
-          ...prev,
-          { id: Date.now().toString(), text: errorMsg, isUser: false, timestamp: new Date() },
-        ]);
-        console.error('Unexpected API response structure:', result);
+        throw new Error(result.error || 'Invalid response from AI');
       }
     } catch (error) {
-      const errorMsg = 'Error: Failed to connect to the AI. Please check your network connection or try again later.';
+      let errorMsg = 'Error: Failed to connect to the AI.';
+      if (error.message.includes('fetch')) {
+        errorMsg += ' Backend server is not running. Please start the server with: npm run dev';
+      } else {
+        errorMsg += ' Please check your network connection or try again later.';
+      }
       setMessages((prev) => [
         ...prev,
-        { id: Date.now().toString(), text: errorMsg, isUser: false, timestamp: new Date() },
+        { id: Date.now().toString(), text: errorMsg, isUser: false, timestamp: new Date() }
       ]);
+      console.error('AI API Error:', error);
     } finally {
       setLoading(false);
     }

@@ -20,7 +20,7 @@ interface AuthResponse {
 }
 
 class AuthService {
-  private baseURL = '/api/auth';
+  private baseURL = 'http://localhost:4000/api/auth';
 
   // Get stored token
   getToken(): string | null {
