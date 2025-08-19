@@ -361,6 +361,12 @@ export const DarkLandingPage = () => {
             About
           </button>
           <button 
+            onClick={() => navigate('/team')}
+            className="text-purple-200/70 hover:text-white hover:bg-purple-600/20 transition-all duration-300 font-medium px-3 py-1 rounded-lg hover:shadow-lg hover:shadow-purple-500/25"
+          >
+            Team
+          </button>
+          <button 
             onClick={() => navigate('/contact')}
             className="text-purple-200/70 hover:text-white hover:bg-purple-600/20 transition-all duration-300 font-medium px-3 py-1 rounded-lg hover:shadow-lg hover:shadow-purple-500/25"
           >

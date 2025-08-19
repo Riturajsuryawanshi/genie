@@ -10,13 +10,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Connect to MongoDB
+// Connect to MongoDB (optional)
 connectMongoDB().catch(err => {
-  console.error('MongoDB connection failed:', err);
-  // Don't exit in production, just log the error
-  if (process.env.NODE_ENV !== 'production') {
-    process.exit(1);
-  }
+  console.error('⚠️  MongoDB connection failed:', err.message);
+  console.log('📝 Server will continue without MongoDB. Chat history won\'t be saved.');
 });
 
 // Import routes
@@ -43,7 +40,7 @@ app.get('/health', (req, res) => {
     success: true,
     message: 'SAATHI Backend API is running',
     timestamp: new Date().toISOString(),
-    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected (optional)',
     services: {
       auth: 'active',
       webhook: 'active',

@@ -72,10 +72,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        if (event === 'SIGNED_IN') {
+        if (event === 'SIGNED_IN' && session?.user) {
+          // Fast user onboarding
+          const onboardUser = async () => {
+            try {
+              const response = await fetch(`${API_BASE_URL}/auth/onboard`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  userId: session.user.id,
+                  email: session.user.email,
+                  fullName: session.user.user_metadata?.full_name || session.user.email?.split('@')[0]
+                })
+              });
+              
+              if (response.ok) {
+                const data = await response.json();
+                console.log('User onboarded:', data);
+              }
+            } catch (error) {
+              console.error('Onboarding error:', error);
+            }
+          };
+          
+          onboardUser();
+          
           toast({
             title: "Welcome to CallGenie!",
-            description: `Successfully signed in as ${session?.user?.email}`,
+            description: `Successfully signed in as ${session.user.email}`,
           });
         } else if (event === 'SIGNED_OUT') {
           // Clear all auth data on sign out
@@ -97,14 +121,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setLoading(true);
       
-      // Get the current origin dynamically
       const redirectUrl = `${window.location.origin}/dashboard`;
-      console.log('Google OAuth redirect URL:', redirectUrl);
       
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'select_account',
+          },
         },
       });
 

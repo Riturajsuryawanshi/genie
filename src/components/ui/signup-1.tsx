@@ -106,14 +106,13 @@ const Signup1 = ({
     setIsLoading(true);
     try {
       await signInWithGoogle();
-      onSuccess?.();
+      // Don't call onSuccess here as it will be handled by auth state change
     } catch (error) {
       toast({
         title: "Google signup failed",
         description: "Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
     }
   };

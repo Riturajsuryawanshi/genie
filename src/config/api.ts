@@ -1,6 +1,10 @@
-// API configuration - always use Render backend
+// API configuration
 const getApiBaseUrl = () => {
-  // Always use Render backend (works for both localhost and production)
+  // Use local backend for development
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:4000/api';
+  }
+  // Use Render backend for production
   return 'https://genie-0rwj.onrender.com/api';
 };
 

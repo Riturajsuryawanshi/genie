@@ -50,10 +50,9 @@ async function getUserPhoneNumber(userId) {
   }
 }
 
-// POST /auth/onboard - onboard a new user
+// POST /auth/onboard - onboard a new user (optimized for speed)
 router.post('/onboard', async (req, res) => {
   try {
-    // Accept both user_id and userId, and full_name or name
     const userId = req.body.userId || req.body.user_id;
     const email = req.body.email;
     const fullName = req.body.fullName || req.body.full_name || req.body.name || null;
@@ -65,7 +64,7 @@ router.post('/onboard', async (req, res) => {
       });
     }
 
-    // Create or update user in database with phone number
+    // Fast upsert with minimal data
     const { data: user, error } = await supabase
       .from('users')
       .upsert({
@@ -75,9 +74,10 @@ router.post('/onboard', async (req, res) => {
         phone_number: '+918035316321',
         created_at: new Date().toISOString()
       }, {
-        onConflict: 'id'
+        onConflict: 'id',
+        ignoreDuplicates: false
       })
-      .select()
+      .select('id, email, name, phone_number')
       .single();
 
     if (error) {
@@ -87,6 +87,30 @@ router.post('/onboard', async (req, res) => {
         error: 'Failed to onboard user' 
       });
     }
+
+    // Async operations for better performance
+    setImmediate(async () => {
+      try {
+        // Initialize usage stats
+        await supabase.from('usage_stats').upsert({
+          user_id: userId,
+          calls_made: 0,
+          minutes_used: 0,
+          ai_response_rate: 0,
+          voicemails: 0
+        }, { onConflict: 'user_id' });
+        
+        // Initialize plan
+        await supabase.from('plans').upsert({
+          user_id: userId,
+          plan_name: 'Free',
+          status: 'active',
+          features: ['Basic AI Assistant', 'Voice Calls']
+        }, { onConflict: 'user_id' });
+      } catch (asyncError) {
+        console.error('Async onboarding error:', asyncError);
+      }
+    });
 
     res.json({ 
       success: true, 
