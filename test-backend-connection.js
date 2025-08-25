@@ -5,7 +5,7 @@ async function testBackend() {
   try {
     console.log('Testing backend connection...');
     
-    const response = await fetch('http://localhost:4000/health');
+    const response = await fetch('http://localhost:4001/health');
     const data = await response.json();
     
     if (data.success) {
@@ -16,8 +16,7 @@ async function testBackend() {
     }
   } catch (error) {
     console.log('❌ Backend is not running');
-    console.log('Please run: npm run dev in the backend folder');
-    console.log('Or double-click start-backend.bat');
+    console.log('💡 Please start the backend by running: cd backend && npm start');
   }
 }
 

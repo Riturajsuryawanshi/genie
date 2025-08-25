@@ -1,4 +1,5 @@
 @echo off
-echo Starting CallGenie Backend Server...
+echo Starting SAATHI Backend Server...
 cd backend
-npm run dev
+npm install
+npm start

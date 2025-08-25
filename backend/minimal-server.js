@@ -2,19 +2,21 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const OpenAI = require('openai');
 require('dotenv').config();
 
+// Import the Gemini service
+// Note: Adjust the path if your file structure is different
+const { generateGeminiResponse } = require('./src/services/gemini');
+
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'],
+  credentials: true
+}));
 app.use(express.json());
 
-// In-memory user storage (replace with database in production)
+// In-memory user storage
 const users = new Map();
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret';
 
@@ -85,42 +87,30 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// Chat route
+// Chat route with mock responses
 app.post('/api/gpt/chat', async (req, res) => {
   try {
-    const { message, conversationHistory = [] } = req.body;
+    const { message, conversationHistory = [], userContext = {} } = req.body;
 
     if (!message) {
       return res.status(400).json({ success: false, error: 'Message is required' });
     }
 
-    const messages = [
-      { role: 'system', content: 'You are SAATHI, a helpful AI assistant. Be concise and friendly.' },
-      ...conversationHistory.slice(-10),
-      { role: 'user', content: message }
-    ];
-
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: messages,
-      max_tokens: 500,
-      temperature: 0.7
+    // Use the Gemini service to get a real AI response
+    const geminiResult = await generateGeminiResponse(message, null, {
+      conversationHistory,
+      userContext
     });
 
-    const response = completion.choices[0].message.content;
-
-    res.json({
-      success: true,
-      response: response
-    });
+    if (geminiResult.success) {
+      res.json(geminiResult);
+    } else {
+      res.status(500).json(geminiResult);
+    }
 
   } catch (error) {
-    console.error('OpenAI API Error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to get AI response',
-      details: error.message
-    });
+    console.error('Chat Error:', error);
+    res.status(500).json({ success: false, error: 'An unexpected error occurred in the chat endpoint.' });
   }
 });
 
@@ -128,7 +118,7 @@ app.get('/health', (req, res) => {
   res.json({ success: true, message: 'Server running' });
 });
 
-const PORT = 4000;
+const PORT = 4001;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
