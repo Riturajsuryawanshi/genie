@@ -191,6 +191,8 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
             <h2 className="text-5xl font-bold text-white mb-6">AI That Answers Phone Calls</h2>
             <p className="text-xl text-purple-300 mb-8 max-w-3xl mx-auto">Get a phone number that people can call to talk with AI. Ask questions, get help, have conversations - our AI can discuss any topic!</p>
             
+
+
             <div className="flex justify-center space-x-4 mb-12">
               <Card className="max-w-md bg-black/80 border-purple-500/30 backdrop-blur-sm">
                 <CardHeader className="text-center">
@@ -556,6 +558,8 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-black flex items-center justify-center p-6">
+
+      
       <Card className="w-full max-w-lg bg-black/80 border-purple-500/30 backdrop-blur-sm">
         <CardHeader className="text-center">
           <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-purple-400 rounded-full flex items-center justify-center mx-auto mb-4">

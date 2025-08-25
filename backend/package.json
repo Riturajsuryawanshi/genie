@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "start": "node minimal-server.js",
+    "dev": "nodemon minimal-server.js",
     "init-db": "node init-db.js",
     "view-db": "node view-db.js",
     "test": "node test-server.js",
@@ -18,6 +18,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@supabase/supabase-js": "^2.50.3",
     "axios": "^1.10.0",
     "bcryptjs": "^2.4.3",

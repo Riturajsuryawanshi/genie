@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Send, User, Bot, Loader2, Image as ImageIcon, Brain, Sparkles, MessageCircle } from 'lucide-react';
 import { chatHistoryService } from '@/services/chatHistory';
+import { geminiService } from '@/services/geminiService';
 import './SaathiChat.css';
 
 
@@ -22,7 +23,7 @@ export const SaathiChat: React.FC = () => {
   const [chatHistories, setChatHistories] = useState<{id: string, title: string, messages: Message[]}[]>([]);
   const [activeChatId, setActiveChatId] = useState('current');
   const [messages, setMessages] = useState<Message[]>([
-    { id: 'init', text: 'Hello! How can I help you today?', isUser: false, timestamp: new Date() }
+    { id: 'init', text: 'Hello! I\'m SAATHI, powered by Gemini AI. How can I help you today?', isUser: false, timestamp: new Date() }
   ]);
   const [loading, setLoading] = useState(false);
   const [selectedImageBase64, setSelectedImageBase64] = useState<string | null>(null);
@@ -44,7 +45,7 @@ export const SaathiChat: React.FC = () => {
   // When activeChatId changes, update messages
   useEffect(() => {
     if (activeChatId === 'current') {
-      setMessages([{ id: 'init', text: 'Hello! How can I help you today?', isUser: false, timestamp: new Date() }]);
+      setMessages([{ id: 'init', text: 'Hello! I\'m SAATHI, powered by Gemini AI. How can I help you today?', isUser: false, timestamp: new Date() }]);
     } else {
       const chat = chatHistories.find(c => c.id === activeChatId);
       setMessages(chat ? chat.messages : []);
@@ -60,14 +61,14 @@ export const SaathiChat: React.FC = () => {
   // New chat handler
   const handleNewChat = () => {
     setActiveChatId('current');
-    setMessages([{ id: 'init', text: 'Hello! How can I help you today?', isUser: false, timestamp: new Date() }]);
+    setMessages([{ id: 'init', text: 'Hello! I\'m SAATHI, powered by Gemini AI. How can I help you today?', isUser: false, timestamp: new Date() }]);
   };
 
   // Select chat from history
   const handleSelectChat = (id: string) => {
     setActiveChatId(id);
     if (id === 'current') {
-      setMessages([{ id: 'init', text: 'Hello! How can I help you today?', isUser: false, timestamp: new Date() }]);
+      setMessages([{ id: 'init', text: 'Hello! I\'m SAATHI, powered by Gemini AI. How can I help you today?', isUser: false, timestamp: new Date() }]);
     }
   };
 
@@ -141,20 +142,8 @@ export const SaathiChat: React.FC = () => {
         content: msg.text || ''
       }));
 
-      const response = await fetch('http://localhost:4000/api/gpt/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          message: prompt,
-          conversationHistory 
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-      
-      const result = await response.json();
+      // Use Gemini service
+      const result = await geminiService.sendMessage(prompt, conversationHistory);
       
       if (result.success && result.response) {
         const assistantText = result.response;
@@ -173,28 +162,34 @@ export const SaathiChat: React.FC = () => {
         throw new Error(result.error || 'Invalid response from AI');
       }
     } catch (error) {
-      let errorMsg = 'Error: Failed to connect to the AI.';
-      if (error.message.includes('fetch')) {
-        errorMsg += ' Backend server is not running. Please start the server with: npm run dev';
+      let errorMsg = 'I\'m having trouble connecting right now. ';
+      if (error.message.includes('Backend server not running') || error.message.includes('fetch')) {
+        errorMsg = 'Backend server is offline. Please start it by running: cd backend && npm start';
+      } else if (error.message.includes('429') || error.message.includes('quota')) {
+        errorMsg = 'Gemini AI service temporarily unavailable due to high usage. Please try again later.';
+      } else if (error.message.includes('API key')) {
+        errorMsg = 'Gemini API configuration issue. Please check the API key.';
       } else {
-        errorMsg += ' Please check your network connection or try again later.';
+        errorMsg += 'Please check your connection and try again.';
       }
       setMessages((prev) => [
         ...prev,
         { id: Date.now().toString(), text: errorMsg, isUser: false, timestamp: new Date() }
       ]);
-      console.error('AI API Error:', error);
+      console.error('Gemini AI Error:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   };
+
+
 
   return (
     <div className="flex w-full min-h-screen bg-black">
@@ -355,7 +350,7 @@ export const SaathiChat: React.FC = () => {
                 type="text"
                 value={userInput}
                 onChange={e => setUserInput(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyDown={handleKeyDown}
                 placeholder="Ask SAATHI anything..."
                 disabled={loading}
                 className="flex-1 bg-transparent text-white placeholder-slate-400 focus:outline-none text-lg font-light"

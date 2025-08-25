@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Phone, Brain, BarChart3, MessageSquare, Shield, Star, User, HelpCircle, ArrowRight, Mail, Copy } from 'lucide-react';
+import { Phone, Brain, BarChart3, MessageSquare, Shield, Star, User, HelpCircle, ArrowRight, Mail, Copy, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
 import { API_BASE_URL } from '@/config/api';
+import { useNavigate } from 'react-router-dom';
 
 const TRIAL_DURATION_DAYS = 7;
 
@@ -58,6 +59,7 @@ const comparison = [
 const CallGenie: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [callGenieTrial, setCallGenieTrial] = useState(() => {
     const stored = localStorage.getItem('callGenieTrial');
     return stored ? JSON.parse(stored) : null;
@@ -123,7 +125,7 @@ const CallGenie: React.FC = () => {
   const startTrial = () => {
     const start = Date.now();
     const end = start + TRIAL_DURATION_DAYS * 24 * 60 * 60 * 1000;
-    const trial = { start, end };
+    const trial = { start, end, userEmail: user?.email };
     setCallGenieTrial(trial);
     localStorage.setItem('callGenieTrial', JSON.stringify(trial));
     setShowPhoneNumber(true);
@@ -149,22 +151,41 @@ const CallGenie: React.FC = () => {
         url="https://callgenie.ai/call-genie"
       />
       <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-violet-50">
+        {/* Back Button */}
+        <button 
+          onClick={() => navigate('/')}
+          className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm text-indigo-700 rounded-xl hover:bg-white transition-all duration-200 border border-indigo-200 shadow-sm"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Home
+        </button>
       <div className="w-full h-full bg-white/70 rounded-none shadow-none p-0 flex flex-col items-center justify-center">
         {/* Personalization */}
         <h2 className="text-3xl font-bold mb-2 flex items-center justify-center gap-2 mt-8"><Phone className="h-7 w-7 text-indigo-500" /> Call Genie</h2>
         <div className="mb-4 text-indigo-900 text-lg">Welcome{userName ? `, ${userName}` : ''}!</div>
-        {/* Trial Progress Bar */}
-        {trialActive && (
-          <div className="mb-4 w-full max-w-xl mx-auto">
-            <div className="w-full bg-indigo-100 rounded-full h-3 mb-2">
-              <div
-                className="bg-indigo-500 h-3 rounded-full transition-all"
-                style={{ width: `${trialProgress}%` }}
-              ></div>
+        {/* Trial Progress Bar - Always show for testing */}
+        <div className="mb-4 w-full max-w-xl mx-auto">
+          {callGenieTrial && trialActive ? (
+            <>
+              <div className="w-full bg-indigo-100 rounded-full h-4 mb-3">
+                <div
+                  className="bg-indigo-500 h-4 rounded-full transition-all"
+                  style={{ width: `${trialProgress}%` }}
+                ></div>
+              </div>
+              <div className="text-lg text-indigo-700 font-bold text-center bg-indigo-50 p-3 rounded-lg">
+                🎉 Free trial ends in {formatTimeLeft(trialTimeLeft)}
+              </div>
+            </>
+          ) : callGenieTrial && trialExpired ? (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+              <div className="text-red-700 font-semibold text-lg">⏰ Trial Expired</div>
+              <div className="text-sm text-red-600">Your 7-day free trial has ended. Upgrade to continue using CallGenie.</div>
             </div>
-            <div className="text-xs text-neutral-700">Trial ends in {formatTimeLeft(trialTimeLeft)}</div>
-          </div>
-        )}
+          ) : (
+            <div className="text-center text-gray-500 text-sm">No active trial</div>
+          )}
+        </div>
         {/* Feature List with Animation */}
         <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-left w-full max-w-3xl mx-auto">
           {features.map((f, i) => (
@@ -263,16 +284,33 @@ const CallGenie: React.FC = () => {
           </a>
         </div>
         {/* Phone Number Display */}
-        {(trialActive || showPhoneNumber) && phoneNumber && (
-          <div className="mb-6 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border-2 border-indigo-200 text-center">
-            <h3 className="text-2xl font-bold text-indigo-700 mb-2 flex items-center justify-center gap-2">
+        {phoneNumber && (
+          <div className={`mb-6 p-6 rounded-xl border-2 text-center ${
+            trialActive 
+              ? 'bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-200' 
+              : 'bg-gradient-to-r from-gray-50 to-gray-100 border-gray-300'
+          }`}>
+            <h3 className={`text-2xl font-bold mb-2 flex items-center justify-center gap-2 ${
+              trialActive ? 'text-indigo-700' : 'text-gray-500'
+            }`}>
               <Phone className="h-6 w-6" /> Your CallGenie Number
             </h3>
-            <div className="text-3xl font-mono font-bold text-indigo-900 mb-3">{phoneNumber}</div>
-            <p className="text-indigo-700 mb-4">Call this number to test your AI assistant!</p>
+            <div className={`text-3xl font-mono font-bold mb-3 ${
+              trialActive ? 'text-indigo-900' : 'text-gray-400'
+            }`}>{phoneNumber}</div>
+            <p className={`mb-4 ${
+              trialActive ? 'text-indigo-700' : 'text-gray-500'
+            }`}>
+              {trialActive ? 'Call this number to test your AI assistant!' : 'Trial expired - Upgrade to reactivate'}
+            </p>
             <button 
               onClick={copyPhoneNumber}
-              className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-semibold shadow hover:bg-indigo-600 flex items-center gap-2 mx-auto"
+              disabled={!trialActive}
+              className={`px-4 py-2 rounded-lg font-semibold shadow flex items-center gap-2 mx-auto ${
+                trialActive 
+                  ? 'bg-indigo-500 text-white hover:bg-indigo-600' 
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
             >
               <Copy className="h-4 w-4" /> Copy Number
             </button>
@@ -280,20 +318,28 @@ const CallGenie: React.FC = () => {
         )}
         
         {/* Trial Start/Expired UI */}
-        {!trialActive && !trialExpired && (
-          <>
-            <p className="mb-6">Start your free 7-day trial to unlock Call Genie features!</p>
-            <button className="px-6 py-3 bg-indigo-500 text-white rounded-lg font-semibold shadow hover:bg-indigo-600" onClick={startTrial}>
-              {user ? 'Try CallGenie Now' : 'Start Free Trial'}
+        {!callGenieTrial && (
+          <div className="mb-6 p-6 bg-indigo-50 border border-indigo-200 rounded-xl text-center">
+            <h3 className="text-xl font-bold text-indigo-700 mb-2">Start Your Free Trial</h3>
+            <p className="text-indigo-600 mb-4">Get 7 days of free access to CallGenie AI assistant!</p>
+            <button 
+              onClick={startTrial}
+              className="px-6 py-3 bg-indigo-500 text-white rounded-lg font-semibold shadow hover:bg-indigo-600"
+            >
+              Start 7-Day Free Trial
             </button>
-          </>
+          </div>
         )}
+        
+        {/* Trial Expired Upgrade UI */}
         {trialExpired && (
-          <>
-            <p className="mb-6 text-red-700">Your free trial has expired.</p>
-            <button className="px-6 py-3 bg-gray-400 text-white rounded-lg font-semibold shadow cursor-not-allowed" disabled>Trial Expired</button>
-            <div className="mt-4 text-xs text-neutral-500">Contact support to upgrade.</div>
-          </>
+          <div className="mb-6 p-6 bg-red-50 border border-red-200 rounded-xl text-center">
+            <h3 className="text-xl font-bold text-red-700 mb-2">Trial Expired</h3>
+            <p className="text-red-600 mb-4">Your 7-day free trial has ended. Upgrade to continue using CallGenie.</p>
+            <button className="px-6 py-3 bg-red-500 text-white rounded-lg font-semibold shadow hover:bg-red-600">
+              Upgrade Now
+            </button>
+          </div>
         )}
       </div>
       </div>

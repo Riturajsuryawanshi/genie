@@ -360,12 +360,7 @@ export const DarkLandingPage = () => {
           >
             About
           </button>
-          <button 
-            onClick={() => navigate('/team')}
-            className="text-purple-200/70 hover:text-white hover:bg-purple-600/20 transition-all duration-300 font-medium px-3 py-1 rounded-lg hover:shadow-lg hover:shadow-purple-500/25"
-          >
-            Team
-          </button>
+
           <button 
             onClick={() => navigate('/contact')}
             className="text-purple-200/70 hover:text-white hover:bg-purple-600/20 transition-all duration-300 font-medium px-3 py-1 rounded-lg hover:shadow-lg hover:shadow-purple-500/25"
@@ -467,25 +462,22 @@ export const DarkLandingPage = () => {
                 </p>
               </motion.div>
 
-              <motion.div
-                variants={fadeUpVariants}
-                initial="hidden"
-                animate="visible"
-                transition={{ duration: 1, delay: 1.1, ease: "easeOut" }}
-                className="space-x-4"
-              >
-                <button
-                  className="px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold shadow-2xl shadow-purple-500/25 hover:scale-105 hover:shadow-3xl hover:shadow-purple-500/40 transition-all duration-300 text-lg relative overflow-hidden group"
-                  onClick={() => setShowSignup(true)}
+              {!(user || customUser) && (
+                <motion.div
+                  variants={fadeUpVariants}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ duration: 1, delay: 1.1, ease: "easeOut" }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <span className="relative z-10">Sign Up</span>
-                </button>
-                <button className="px-8 py-4 rounded-xl border-2 border-purple-500/50 text-purple-200 hover:bg-purple-500/20 hover:border-purple-400 hover:text-white hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-300 text-lg">
-                  Learn More
-                </button>
-
-              </motion.div>
+                  <button
+                    className="px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold shadow-2xl shadow-purple-500/25 hover:scale-105 hover:shadow-3xl hover:shadow-purple-500/40 transition-all duration-300 text-lg relative overflow-hidden group"
+                    onClick={() => setShowSignup(true)}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <span className="relative z-10">Sign Up</span>
+                  </button>
+                </motion.div>
+              )}
             </div>
           </div>
         </SectionWithShapes>

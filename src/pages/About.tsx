@@ -1,6 +1,6 @@
 // React import not needed with modern JSX transform
 import { motion } from 'framer-motion';
-import { Brain, Shield, MessageSquare, Star, ArrowLeft, Phone, Users, Zap, Globe } from 'lucide-react';
+import { Brain, Shield, MessageSquare, Star, ArrowLeft, Phone, Users, Zap, Globe, Heart, Lightbulb, Target, Rocket } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { SEO } from '@/components/SEO';
 
@@ -71,120 +71,152 @@ export const About: React.FC = () => {
           </p>
         </motion.div>
 
-        {/* Mission & Vision */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUpVariants}
-            transition={{ duration: 1, delay: 0.3 }}
-            className="space-y-8"
-          >
+        {/* Overview Section */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeUpVariants}
+          transition={{ duration: 1, delay: 0.3 }}
+          className="mb-20"
+        >
+          <div className="bg-gradient-to-br from-purple-500/20 to-violet-500/20 p-8 rounded-3xl border border-purple-500/30 backdrop-blur-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-400/20 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-violet-400/20 to-transparent rounded-full translate-y-12 -translate-x-12"></div>
+
+            <div className="relative z-10">
+              <h2 className="text-3xl font-bold text-white mb-6">CallGenie V2 - AI-Powered Voice Assistant</h2>
+              <p className="text-white/80 text-lg leading-relaxed mb-8">
+                CallGenie V2 is a comprehensive AI-powered voice assistant platform that revolutionizes business communication through intelligent voice-to-voice interactions. Built with cutting-edge AI technology, it provides natural conversational experiences for customer service, appointment scheduling, and business automation.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div className="bg-white/[0.05] p-4 rounded-xl border border-white/[0.1]">
+                  <div className="text-2xl font-bold text-purple-400 mb-1">🎤</div>
+                  <div className="text-sm text-white font-medium mb-1">Voice Recognition</div>
+                  <div className="text-xs text-white/60">OpenAI Whisper</div>
+                </div>
+                <div className="bg-white/[0.05] p-4 rounded-xl border border-white/[0.1]">
+                  <div className="text-2xl font-bold text-violet-400 mb-1">🧠</div>
+                  <div className="text-sm text-white font-medium mb-1">AI Intelligence</div>
+                  <div className="text-xs text-white/60">GPT-4/GPT-3.5</div>
+                </div>
+                <div className="bg-white/[0.05] p-4 rounded-xl border border-white/[0.1]">
+                  <div className="text-2xl font-bold text-fuchsia-400 mb-1">🔊</div>
+                  <div className="text-sm text-white font-medium mb-1">Voice Synthesis</div>
+                  <div className="text-xs text-white/60">OpenAI TTS</div>
+                </div>
+                <div className="bg-white/[0.05] p-4 rounded-xl border border-white/[0.1]">
+                  <div className="text-2xl font-bold text-emerald-400 mb-1">📱</div>
+                  <div className="text-sm text-white font-medium mb-1">Phone Integration</div>
+                  <div className="text-xs text-white/60">Exotel Support</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Voice AI Pipeline */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeUpVariants}
+          transition={{ duration: 1, delay: 0.5 }}
+          className="mb-20"
+        >
+          <h2 className="text-3xl font-bold text-white mb-8 text-center">Voice AI Pipeline</h2>
+          <div className="bg-gradient-to-br from-purple-500/10 to-violet-500/10 p-8 rounded-3xl border border-purple-500/20">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-full mx-auto mb-3 flex items-center justify-center text-white font-bold">1</div>
+                <h4 className="font-semibold text-white mb-2">Call Reception</h4>
+                <p className="text-white/60 text-sm">Exotel sends webhook with audio URL</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full mx-auto mb-3 flex items-center justify-center text-white font-bold">2</div>
+                <h4 className="font-semibold text-white mb-2">Speech Recognition</h4>
+                <p className="text-white/60 text-sm">OpenAI Whisper transcribes audio</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-fuchsia-500 to-purple-600 rounded-full mx-auto mb-3 flex items-center justify-center text-white font-bold">3</div>
+                <h4 className="font-semibold text-white mb-2">AI Response</h4>
+                <p className="text-white/60 text-sm">GPT generates contextual response</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full mx-auto mb-3 flex items-center justify-center text-white font-bold">4</div>
+                <h4 className="font-semibold text-white mb-2">Voice Synthesis</h4>
+                <p className="text-white/60 text-sm">Convert response to speech</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+
+
+        {/* Team Section */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeUpVariants}
+          transition={{ duration: 1, delay: 0.6 }}
+          className="mb-20"
+        >
+          <h2 className="text-3xl font-bold text-white mb-8 text-center">Meet Our Team</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="relative">
+              <div className="bg-gradient-to-br from-purple-500/20 to-violet-500/20 p-8 rounded-3xl border border-purple-500/30 backdrop-blur-sm">
+                <div className="flex items-center justify-center mb-6">
+                  <img 
+                    src="/ceo.jpg" 
+                    alt="Rituraj and Aayush - CallGenie Founders" 
+                    className="w-48 h-48 object-cover object-center rounded-2xl shadow-2xl"
+                  />
+                </div>
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold text-white mb-2">The Founding Duo</h3>
+                  <p className="text-purple-300 mb-4">Rituraj Suryawanshi & Aayush Purohit</p>
+                  <p className="text-white/70 leading-relaxed">
+                    From an idea sketched on a late-night call to a vision transforming into reality, we bring complementary skills, relentless drive, and a shared dream to create something impactful.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
             <div className="space-y-6">
-              <div className="flex items-start space-x-4">
-                <div className="bg-gradient-to-br from-purple-500 to-violet-600 p-3 rounded-xl flex-shrink-0">
-                  <Brain className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-2">AI-First Approach</h3>
-                  <p className="text-purple-100/60 leading-relaxed">
-                    CallGenie was born from the vision of revolutionizing how businesses handle phone communications.
-                    We understand that every call is an opportunity to build relationships and drive growth.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4">
-                <div className="bg-gradient-to-br from-violet-500 to-purple-600 p-3 rounded-xl flex-shrink-0">
-                  <Shield className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-2">Enterprise Ready</h3>
-                  <p className="text-purple-100/60 leading-relaxed">
-                    Our AI-powered platform combines cutting-edge natural language processing with intelligent
-                    workflow automation to ensure no call goes unanswered and every interaction is meaningful.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4">
-                <div className="bg-gradient-to-br from-fuchsia-500 to-purple-600 p-3 rounded-xl flex-shrink-0">
-                  <MessageSquare className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-2">Human-Centric Design</h3>
-                  <p className="text-purple-100/60 leading-relaxed">
-                    We believe technology should enhance human connections, not replace them. Our AI maintains
-                    the warmth and understanding that customers expect from great service.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-6">
-              <motion.div
-                className="text-center p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.05] transition-all cursor-pointer"
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <div className="text-3xl font-bold text-purple-400 mb-1">10K+</div>
-                <div className="text-sm text-white/50">Happy Customers</div>
-              </motion.div>
-              <motion.div
-                className="text-center p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.05] transition-all cursor-pointer"
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <div className="text-3xl font-bold text-violet-400 mb-1">99.9%</div>
-                <div className="text-sm text-white/50">Uptime</div>
-              </motion.div>
-              <motion.div
-                className="text-center p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.05] transition-all cursor-pointer"
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <div className="text-3xl font-bold text-fuchsia-400 mb-1">24/7</div>
-                <div className="text-sm text-white/50">AI Support</div>
-              </motion.div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUpVariants}
-            transition={{ duration: 1, delay: 0.5 }}
-            className="relative"
-          >
-            <div className="bg-gradient-to-br from-purple-500/20 to-violet-500/20 p-8 rounded-3xl border border-purple-500/30 backdrop-blur-sm relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-400/20 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-violet-400/20 to-transparent rounded-full translate-y-12 -translate-x-12"></div>
-
-              <div className="relative z-10">
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="bg-gradient-to-br from-purple-500 to-violet-600 p-2 rounded-lg">
-                    <Star className="h-5 w-5 text-white" />
+              <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-purple-800 rounded-full flex items-center justify-center">
+                    <span className="text-lg font-bold text-white">RS</span>
                   </div>
-                  <h3 className="text-2xl font-bold text-white">Our Mission</h3>
+                  <div>
+                    <h4 className="text-lg font-bold text-white">Rituraj Suryawanshi</h4>
+                    <p className="text-purple-400 text-sm">Founder & CEO</p>
+                  </div>
                 </div>
-                <p className="text-white/80 text-lg leading-relaxed mb-6">
-                  To democratize AI-powered communication, making advanced phone automation accessible
-                  to businesses of all sizes while maintaining the human touch that customers expect.
+                <p className="text-white/70 text-sm leading-relaxed">
+                  A visionary leader with a passion for AI and innovation. Rituraj brings strategic thinking and technical expertise to drive CallGenie's mission.
                 </p>
-
-                <div className="border-t border-white/20 pt-6">
-                  <h4 className="text-lg font-semibold text-white mb-3">Our Vision</h4>
-                  <p className="text-white/70">
-                    A world where every business conversation is intelligent, efficient, and meaningful -
-                    powered by AI that truly understands and serves human needs.
-                  </p>
+              </div>
+              
+              <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-purple-800 rounded-full flex items-center justify-center">
+                    <span className="text-lg font-bold text-white">AP</span>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold text-white">Aayush Purohit</h4>
+                    <p className="text-purple-400 text-sm">Co-Founder & CTO</p>
+                  </div>
                 </div>
+                <p className="text-white/70 text-sm leading-relaxed">
+                  A technical mastermind with deep expertise in software architecture and AI implementation. Aayush ensures robust, scalable technology delivery.
+                </p>
               </div>
             </div>
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
 
         {/* Core Values */}
         <motion.div
@@ -196,18 +228,18 @@ export const About: React.FC = () => {
           className="text-center mb-16"
         >
           <h3 className="text-3xl font-bold text-white mb-8">Our Core Values</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <motion.div
               className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.05] transition-all"
               whileHover={{ y: -5 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
               <div className="bg-gradient-to-br from-purple-500 to-violet-600 p-3 rounded-xl w-fit mx-auto mb-4">
-                <Brain className="h-6 w-6 text-white" />
+                <Lightbulb className="h-6 w-6 text-white" />
               </div>
-              <h4 className="text-lg font-semibold text-white mb-2">Innovation</h4>
+              <h4 className="text-lg font-semibold text-white mb-2">Innovation First</h4>
               <p className="text-white/60 text-sm">
-                Constantly pushing the boundaries of what's possible with AI and communication technology.
+                We push boundaries and challenge conventions to create breakthrough solutions.
               </p>
             </motion.div>
 
@@ -217,11 +249,11 @@ export const About: React.FC = () => {
               transition={{ type: "spring", stiffness: 300 }}
             >
               <div className="bg-gradient-to-br from-violet-500 to-fuchsia-600 p-3 rounded-xl w-fit mx-auto mb-4">
-                <Shield className="h-6 w-6 text-white" />
+                <Target className="h-6 w-6 text-white" />
               </div>
-              <h4 className="text-lg font-semibold text-white mb-2">Trust</h4>
+              <h4 className="text-lg font-semibold text-white mb-2">Purpose-Driven</h4>
               <p className="text-white/60 text-sm">
-                Building secure, reliable solutions that businesses can depend on for their most important communications.
+                Every decision we make is guided by our mission to make a meaningful impact.
               </p>
             </motion.div>
 
@@ -231,25 +263,11 @@ export const About: React.FC = () => {
               transition={{ type: "spring", stiffness: 300 }}
             >
               <div className="bg-gradient-to-br from-fuchsia-500 to-purple-600 p-3 rounded-xl w-fit mx-auto mb-4">
-                <Users className="h-6 w-6 text-white" />
+                <Rocket className="h-6 w-6 text-white" />
               </div>
-              <h4 className="text-lg font-semibold text-white mb-2">Connection</h4>
+              <h4 className="text-lg font-semibold text-white mb-2">Relentless Execution</h4>
               <p className="text-white/60 text-sm">
-                Enhancing human connections through technology that understands context, emotion, and intent.
-              </p>
-            </motion.div>
-
-            <motion.div
-              className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.05] transition-all"
-              whileHover={{ y: -5 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
-              <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-3 rounded-xl w-fit mx-auto mb-4">
-                <Globe className="h-6 w-6 text-white" />
-              </div>
-              <h4 className="text-lg font-semibold text-white mb-2">Global Impact</h4>
-              <p className="text-white/60 text-sm">
-                Making advanced AI communication accessible to businesses worldwide, regardless of size or location.
+                We turn ambitious visions into reality through dedication and hard work.
               </p>
             </motion.div>
           </div>
