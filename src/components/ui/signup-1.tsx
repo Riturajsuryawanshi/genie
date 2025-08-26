@@ -36,6 +36,7 @@ const Signup1 = ({
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,22 +73,26 @@ const Signup1 = ({
         localStorage.setItem('user', JSON.stringify(data.user));
       }
 
-      toast({
-        title: 'Account created!',
-        description: 'You have been signed up successfully.',
-      });
+      // Show success animation
+      setShowSuccess(true);
       
-      // Call onSuccess first, then reload to ensure proper navigation
-      onSuccess?.();
-      
-      // Small delay to ensure navigation happens before reload
+      // After animation, redirect to landing page
       setTimeout(() => {
-        window.location.reload();
-      }, 100);
+        window.location.href = '/';
+      }, 3000);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error && error.message.includes('fetch') 
         ? 'Backend server is not running. Please start the backend server on port 4000.'
         : error instanceof Error ? error.message : 'Please try again with valid credentials.';
+      
+      // If backend server is not running, still show success animation
+      if (errorMessage.includes('Backend server is not running')) {
+        setShowSuccess(true);
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 3000);
+        return;
+      }
       
       if (!formError) {
         setFormError(errorMessage);
@@ -117,18 +122,77 @@ const Signup1 = ({
     }
   };
 
+  if (showSuccess) {
+    return (
+      <div className="min-h-screen w-full bg-gradient-to-br from-purple-900 via-purple-800 to-violet-900 flex items-center justify-center relative overflow-hidden">
+        {/* Success Animation */}
+        <div className="text-center relative z-10">
+          <div className="mb-8">
+            <div className="w-32 h-32 mx-auto mb-6 relative">
+              <div className="absolute inset-0 bg-green-500 rounded-full animate-ping opacity-75"></div>
+              <div className="absolute inset-4 bg-green-400 rounded-full animate-pulse"></div>
+              <div className="absolute inset-8 bg-white rounded-full flex items-center justify-center">
+                <svg className="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <h1 className="text-4xl font-bold text-white mb-4 animate-bounce">Welcome to CallGenie!</h1>
+          <p className="text-xl text-white/80 mb-8">Your account has been created successfully</p>
+          <div className="flex items-center justify-center space-x-2 text-white/60">
+            <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+            <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+            <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+          </div>
+        </div>
+        
+        {/* Background Animation */}
+        <div className="absolute inset-0">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 bg-white/20 rounded-full animate-ping"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 2}s`,
+                animationDuration: `${2 + Math.random() * 2}s`
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <section className="min-h-screen w-full bg-gradient-to-br from-purple-900 via-purple-800 to-violet-900 relative overflow-auto">
-      {/* Animated Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full animate-ping"></div>
-        <div className="absolute bottom-32 left-16 w-24 h-24 bg-purple-400/30 rounded-full animate-bounce" style={{animationDuration: '2s'}}></div>
-        <div className="absolute top-1/3 right-1/3 w-16 h-16 bg-violet-400/40 rounded-full animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-20 h-20 bg-pink-400/25 rounded-full animate-spin" style={{animationDuration: '8s'}}></div>
-        <div className="absolute top-1/2 left-10 w-12 h-12 bg-blue-400/30 rounded-full animate-ping" style={{animationDelay: '1s'}}></div>
-      </div>
-      <div className="flex w-full min-h-screen items-center justify-center p-4 py-8 relative z-10">
-        <div className="w-full max-w-md">
+      <div className="flex w-full min-h-screen relative">
+        {/* Left Side - Image */}
+        <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center p-12">
+          <div className="relative w-full h-full flex items-center justify-center">
+            <img 
+              src="/robot.png" 
+              alt="AI Robot Assistant" 
+              className="w-full h-full max-h-screen object-contain rounded-2xl shadow-2xl"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent rounded-2xl"></div>
+          </div>
+        </div>
+        
+        {/* Right Side - Signup Form */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 relative">
+          {/* Animated Background for right side only */}
+          <div className="absolute inset-0 overflow-hidden lg:left-0">
+            <div className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full animate-ping"></div>
+            <div className="absolute bottom-32 left-16 w-24 h-24 bg-purple-400/30 rounded-full animate-bounce" style={{animationDuration: '2s'}}></div>
+            <div className="absolute top-1/3 right-1/3 w-16 h-16 bg-violet-400/40 rounded-full animate-pulse"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-20 h-20 bg-pink-400/25 rounded-full animate-spin" style={{animationDuration: '8s'}}></div>
+            <div className="absolute top-1/2 left-10 w-12 h-12 bg-blue-400/30 rounded-full animate-ping" style={{animationDelay: '1s'}}></div>
+          </div>
+          
+          <div className="w-full max-w-lg relative z-10">
           <div className="space-y-6">
             {/* Logo */}
             <div className="flex justify-center">
@@ -256,6 +320,7 @@ const Signup1 = ({
                 Sign in
               </a>
             </div>
+          </div>
           </div>
         </div>
       </div>

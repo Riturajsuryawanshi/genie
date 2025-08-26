@@ -205,30 +205,20 @@ export const DarkLandingPage = () => {
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       {/* Signup Modal */}
       {showSignup && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-[4px] transition-all duration-300">
-          <div className="relative w-full max-w-md mx-auto p-0 animate-fade-scale-in">
-            <div className="rounded-3xl bg-white/20 border border-white/30 shadow-2xl backdrop-blur-2xl flex flex-col items-center px-8 py-8 sm:px-10 sm:py-10 glassmorphism">
-              <button className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-full transition-all z-20" onClick={() => setShowSignup(false)} aria-label="Close signup modal">
-                <X className="w-6 h-6" />
-              </button>
-              {/* Calling-themed image */}
-              <div className="flex flex-col items-center mb-4 mt-2">
-                <img src="/calling-illustration.png" alt="Calling Illustration" className="h-24 w-24 object-contain mb-2 drop-shadow-lg" />
-              </div>
-              <Signup1
-                signupText="Create an account"
-                googleText="Sign up with Google"
-                loginText="Already have an account?"
-                loginUrl="#"
-                onSuccess={() => setShowSignup(false)}
-              />
-              <div className="flex flex-col items-center mt-4 gap-2 w-full">
-                <button className="px-4 py-2 rounded-lg bg-rose-500 text-white font-semibold shadow hover:bg-rose-600 transition-all w-full" onClick={() => setShowSignup(false)}>
-                  Cancel
-                </button>
-                <span className="text-sm text-gray-600">Already have an account? <button className="text-indigo-600 hover:underline text-sm font-medium" onClick={() => { setShowSignup(false); setShowLogin(true); }}>Log in</button></span>
-              </div>
-            </div>
+        <div className="fixed inset-0 z-[100] bg-black transition-all duration-300">
+          <div className="relative w-full h-full animate-fade-scale-in">
+            <button className="absolute top-6 right-6 text-white/70 hover:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 rounded-full transition-all z-20 bg-black/20 p-2 backdrop-blur-sm" onClick={() => setShowSignup(false)} aria-label="Close signup modal">
+              <X className="w-6 h-6" />
+            </button>
+            <Signup1
+              heading="Create your CallGenie account"
+              subtitle="Join CallGenie and get started today"
+              signupText="Create an account"
+              googleText="Sign up with Google"
+              loginText="Already have an account?"
+              loginUrl="#"
+              onSuccess={() => setShowSignup(false)}
+            />
           </div>
           <style>{`
             @keyframes fade-scale-in {
