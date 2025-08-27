@@ -1,7 +1,11 @@
 import { DarkLandingPage } from './DarkLandingPage';
 import { SEO } from './SEO';
 
-export const LandingPage = () => {
+interface LandingPageProps {
+  user?: any;
+}
+
+export const LandingPage = ({ user }: LandingPageProps) => {
   return (
     <>
       <SEO 
@@ -10,7 +14,7 @@ export const LandingPage = () => {
         keywords="AI voice assistant, phone automation, voice AI, call handling, business phone system, artificial intelligence, voice recognition, automated calling, customer service AI, phone bot"
         url="https://callgenie.ai"
       />
-      <DarkLandingPage />
+      <DarkLandingPage user={user} />
     </>
   );
 };

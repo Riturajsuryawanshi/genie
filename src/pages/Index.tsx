@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { LandingPage } from '@/components/LandingPage';
 import { Dashboard } from '@/components/Dashboard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { useAuth } from '@/contexts/AuthContext';
+import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('overview');
-  const { user, loading } = useAuth();
+  const { user: firebaseUser, loading } = useFirebaseAuth();
 
   const copyNumber = () => {
     // This function is now handled inside the Dashboard component
@@ -22,11 +22,11 @@ const Index = () => {
     );
   }
 
-  // Always show landing page, even if logged in
+  // Show landing page with user info if logged in
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-white to-violet-50">
       <div className="flex-1">
-        <LandingPage />
+        <LandingPage user={firebaseUser} />
       </div>
     </div>
   );

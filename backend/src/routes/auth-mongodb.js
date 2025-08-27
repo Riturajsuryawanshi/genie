@@ -22,6 +22,7 @@ router.post('/signup', async (req, res) => {
   try {
     const { email, password, name, phone } = req.body;
 
+    // Validate required fields
     if (!email || !password || !name) {
       return res.status(400).json({
         success: false,
@@ -29,8 +30,25 @@ router.post('/signup', async (req, res) => {
       });
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide a valid email address'
+      });
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: 'Password must be at least 6 characters long'
+      });
+    }
+
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -40,30 +58,42 @@ router.post('/signup', async (req, res) => {
 
     // Create new user
     const user = new User({
-      email,
+      email: email.toLowerCase(),
       password,
-      name,
-      phone: phone || '',
+      name: name.trim(),
+      phone: phone ? phone.trim() : '',
       isEmailVerified: true // Auto-verify for now
     });
 
     await user.save();
 
-    // Create initial usage stats
-    const usageStats = new UsageStats({ userId: user._id });
-    await usageStats.save();
+    // Create initial usage stats (with error handling)
+    try {
+      const usageStats = new UsageStats({ userId: user._id });
+      await usageStats.save();
+    } catch (statsError) {
+      console.warn('Failed to create usage stats:', statsError.message);
+    }
 
-    // Create initial plan
-    const plan = new Plan({ userId: user._id });
-    await plan.save();
+    // Create initial plan (with error handling)
+    try {
+      const plan = new Plan({ userId: user._id });
+      await plan.save();
+    } catch (planError) {
+      console.warn('Failed to create plan:', planError.message);
+    }
 
-    // Log activity
-    const activityLog = new ActivityLog({
-      userId: user._id,
-      type: 'signup',
-      description: 'User account created'
-    });
-    await activityLog.save();
+    // Log activity (with error handling)
+    try {
+      const activityLog = new ActivityLog({
+        userId: user._id,
+        type: 'signup',
+        description: 'User account created'
+      });
+      await activityLog.save();
+    } catch (logError) {
+      console.warn('Failed to log activity:', logError.message);
+    }
 
     // Generate token
     const token = generateToken(user._id);
@@ -76,9 +106,26 @@ router.post('/signup', async (req, res) => {
     });
   } catch (error) {
     console.error('Signup error:', error);
+    
+    // Handle specific MongoDB errors
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        error: 'User with this email already exists'
+      });
+    }
+    
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        error: validationErrors.join(', ')
+      });
+    }
+    
     res.status(500).json({
       success: false,
-      error: error.message || 'Failed to create account'
+      error: 'Failed to create account. Please try again.'
     });
   }
 });
@@ -157,12 +204,16 @@ router.post('/onboard', async (req, res) => {
     // Find or create user
     let user = await User.findById(userId);
     if (!user) {
+      // Generate a secure random password for OAuth users
+      const crypto = require('crypto');
+      const randomPassword = crypto.randomBytes(32).toString('hex');
+      
       user = new User({
         _id: userId,
         email: email,
         name: fullName || 'User',
         phone: phone,
-        password: 'temp-password', // This should be handled differently in production
+        password: randomPassword,
         isEmailVerified: true
       });
       await user.save();

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Circle, Phone, MessageSquare, Brain, Shield, Mail, MapPin, LogIn, ChevronRight, User, LogOut, Star, Check, ArrowRight, X, Send, AlertCircle, CheckCircle } from "lucide-react";
 import { GoogleSignInButton } from './GoogleSignInButton';
 import { useAuth } from '@/contexts/AuthContext';
+import { auth } from '@/lib/firebase';
 import { SplineSceneBasic } from './SplineSceneBasic';
 import { SaathiDemo } from './SaathiDemo';
 import { AnimatedLogo } from './AnimatedLogo';
@@ -92,7 +93,11 @@ function SectionWithShapes({ children, className = "", ...props }: { children: R
     );
 }
 
-export const DarkLandingPage = () => {
+interface DarkLandingPageProps {
+  user?: any;
+}
+
+export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) => {
   const { signInWithGoogle, loading, user, signOut, customUser } = useAuth();
   const [showAuthDropdown, setShowAuthDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -131,8 +136,13 @@ export const DarkLandingPage = () => {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      // Clear Firebase auth
+      await auth.signOut();
+      // Clear all local storage
+      localStorage.clear();
       setShowAuthDropdown(false);
+      // Force page reload to clear all state
+      window.location.href = '/';
     } catch (error) {
       console.error('Sign out failed:', error);
     }
@@ -205,30 +215,20 @@ export const DarkLandingPage = () => {
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       {/* Signup Modal */}
       {showSignup && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-[4px] transition-all duration-300">
-          <div className="relative w-full max-w-md mx-auto p-0 animate-fade-scale-in">
-            <div className="rounded-3xl bg-white/20 border border-white/30 shadow-2xl backdrop-blur-2xl flex flex-col items-center px-8 py-8 sm:px-10 sm:py-10 glassmorphism">
-              <button className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-full transition-all z-20" onClick={() => setShowSignup(false)} aria-label="Close signup modal">
-                <X className="w-6 h-6" />
-              </button>
-              {/* Calling-themed image */}
-              <div className="flex flex-col items-center mb-4 mt-2">
-                <img src="/calling-illustration.png" alt="Calling Illustration" className="h-24 w-24 object-contain mb-2 drop-shadow-lg" />
-              </div>
-              <Signup1
-                signupText="Create an account"
-                googleText="Sign up with Google"
-                loginText="Already have an account?"
-                loginUrl="#"
-                onSuccess={() => setShowSignup(false)}
-              />
-              <div className="flex flex-col items-center mt-4 gap-2 w-full">
-                <button className="px-4 py-2 rounded-lg bg-rose-500 text-white font-semibold shadow hover:bg-rose-600 transition-all w-full" onClick={() => setShowSignup(false)}>
-                  Cancel
-                </button>
-                <span className="text-sm text-gray-600">Already have an account? <button className="text-indigo-600 hover:underline text-sm font-medium" onClick={() => { setShowSignup(false); setShowLogin(true); }}>Log in</button></span>
-              </div>
-            </div>
+        <div className="fixed inset-0 z-[100] bg-black transition-all duration-300">
+          <div className="relative w-full h-full animate-fade-scale-in">
+            <button className="absolute top-6 right-6 text-white/70 hover:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 rounded-full transition-all z-20 bg-black/20 p-2 backdrop-blur-sm" onClick={() => setShowSignup(false)} aria-label="Close signup modal">
+              <X className="w-6 h-6" />
+            </button>
+            <Signup1
+              heading="Create your CallGenie account"
+              subtitle="Join CallGenie and get started today"
+              signupText="Create an account"
+              googleText="Sign up with Google"
+              loginText="Already have an account?"
+              loginUrl="#"
+              onSuccess={() => setShowSignup(false)}
+            />
           </div>
           <style>{`
             @keyframes fade-scale-in {
@@ -338,13 +338,13 @@ export const DarkLandingPage = () => {
       )}
 
       {/* Header */}
-      <header className="px-4 lg:px-6 h-20 flex items-center border-b border-purple-500/20 bg-black/90 backdrop-blur-sm">
+      <header className="px-4 lg:px-6 h-16 lg:h-20 flex items-center border-b border-purple-500/20 bg-black/90 backdrop-blur-sm">
         <div className="flex items-center justify-center">
           <AnimatedLogo />
         </div>
         
         {/* Navigation Links */}
-        <nav className="hidden md:flex items-center space-x-8 mx-auto">
+        <nav className="hidden lg:flex items-center space-x-4 lg:space-x-8 mx-auto">
           <a href="/saathi" className="text-purple-200/70 hover:text-purple-100 transition-colors font-medium">
             SAATHI
           </a>
@@ -370,22 +370,22 @@ export const DarkLandingPage = () => {
         </nav>
 
         {/* Sign In/Up Buttons */}
-        <div className="flex items-center space-x-4 relative" ref={dropdownRef}>
-          {(user || customUser) ? (
+        <div className="flex items-center space-x-2 lg:space-x-4 relative" ref={dropdownRef}>
+          {(firebaseUser || user || customUser) ? (
             <div className="relative">
               <button 
                 onClick={() => setShowAuthDropdown(!showAuthDropdown)}
                 className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/30 hover:bg-purple-500/20 transition-all"
               >
                 <User className="h-4 w-4" />
-                <span className="hidden sm:inline text-purple-200">{user?.email?.split('@')[0] || customUser?.email?.split('@')[0] || customUser?.name || 'User'}</span>
+                <span className="hidden md:inline text-purple-200 text-sm lg:text-base">{firebaseUser?.email?.split('@')[0] || user?.email?.split('@')[0] || customUser?.email?.split('@')[0] || customUser?.name || 'User'}</span>
                 <ChevronRight className={`h-4 w-4 transition-transform text-purple-300/60 ${showAuthDropdown ? 'rotate-90' : ''}`} />
               </button>
               
               {showAuthDropdown && (
                 <div className="absolute right-0 top-full mt-2 w-48 bg-black/90 rounded-lg shadow-xl border border-purple-500/30 py-1 z-50 backdrop-blur-sm">
                   <div className="px-4 py-2 text-sm text-purple-200 border-b border-purple-500/30">
-                    <div className="font-medium">{user?.email || customUser?.email}</div>
+                    <div className="font-medium">{firebaseUser?.email || user?.email || customUser?.email}</div>
                     <div className="text-xs text-purple-300/50">Signed in</div>
                   </div>
                   <button
@@ -462,22 +462,20 @@ export const DarkLandingPage = () => {
                 </p>
               </motion.div>
 
-              {!(user || customUser) && (
-                <motion.div
-                  variants={fadeUpVariants}
-                  initial="hidden"
-                  animate="visible"
-                  transition={{ duration: 1, delay: 1.1, ease: "easeOut" }}
+              <motion.div
+                variants={fadeUpVariants}
+                initial="hidden"
+                animate="visible"
+                transition={{ duration: 1, delay: 1.1, ease: "easeOut" }}
+              >
+                <button
+                  className="px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold shadow-2xl shadow-purple-500/25 hover:scale-105 hover:shadow-3xl hover:shadow-purple-500/40 transition-all duration-300 text-lg relative overflow-hidden group"
+                  onClick={() => navigate('/signup')}
                 >
-                  <button
-                    className="px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold shadow-2xl shadow-purple-500/25 hover:scale-105 hover:shadow-3xl hover:shadow-purple-500/40 transition-all duration-300 text-lg relative overflow-hidden group"
-                    onClick={() => setShowSignup(true)}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <span className="relative z-10">Sign Up</span>
-                  </button>
-                </motion.div>
-              )}
+                  <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <span className="relative z-10">Sign Up</span>
+                </button>
+              </motion.div>
             </div>
           </div>
         </SectionWithShapes>
@@ -508,13 +506,19 @@ export const DarkLandingPage = () => {
               <p className="text-purple-100/80 text-lg mb-6">
                 Experience the power of AI-driven voice communication
               </p>
-              <a 
-                href="/dashboard"
-                className="inline-block px-8 py-4 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-bold rounded-xl shadow-2xl shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300 text-lg hover:scale-105 relative overflow-hidden group"
+              <button
+                className="px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold shadow-2xl shadow-purple-500/25 hover:scale-105 hover:shadow-3xl hover:shadow-purple-500/40 transition-all duration-300 text-lg relative overflow-hidden group"
+                onClick={() => {
+                  if (firebaseUser || user || customUser) {
+                    window.location.href = '/dashboard';
+                  } else {
+                    navigate('/login');
+                  }
+                }}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <span className="relative z-10">Try CallGenie Now</span>
-              </a>
+              </button>
             </div>
           </div>
         </SectionWithShapes>
@@ -1275,13 +1279,19 @@ export const DarkLandingPage = () => {
               <p className="text-xl md:text-2xl text-purple-100/80 mb-8">
                 Start your AI voice assistant journey today - completely free
               </p>
-              <a 
-                href="/dashboard"
+              <button
+                onClick={() => {
+                  if (firebaseUser || user || customUser) {
+                    window.location.href = '/dashboard';
+                  } else {
+                    navigate('/login');
+                  }
+                }}
                 className="inline-block px-8 py-4 bg-white text-purple-700 rounded-xl font-bold text-lg hover:scale-105 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300 shadow-lg text-center relative overflow-hidden group"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-rose-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <span className="relative z-10 group-hover:text-white transition-colors duration-300">Start Free Trial</span>
-              </a>
+                <span className="relative z-10 group-hover:text-white transition-colors duration-300">{(firebaseUser || user || customUser) ? 'Try CallGenie Now' : 'Start Free Trial'}</span>
+              </button>
             </motion.div>
           </div>
         </SectionWithShapes>

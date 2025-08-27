@@ -1,7 +1,7 @@
 // API configuration
 const getApiBaseUrl = () => {
-  // Always use production backend to avoid local server dependency
-  return 'https://genie-0rwj.onrender.com/api';
+  // Use Hostinger production backend
+  return 'https://supernovaind.com/api';
 };
 
 const API_BASE_URL = getApiBaseUrl();

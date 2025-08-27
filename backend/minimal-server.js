@@ -6,7 +6,7 @@ require('dotenv').config();
 
 // Import the Gemini service
 // Note: Adjust the path if your file structure is different
-const { generateGeminiResponse } = require('./src/services/gemini');
+const { generateGeminiResponse } = require('./src/services/gemini-simple');
 
 const app = express();
 app.use(cors({
@@ -118,7 +118,7 @@ app.get('/health', (req, res) => {
   res.json({ success: true, message: 'Server running' });
 });
 
-const PORT = 4001;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
