@@ -25,15 +25,49 @@ if (!fs.existsSync(processedDir)) {
 
 // 2. Check .env file
 const envPath = path.join(__dirname, '.env');
+const envExamplePath = path.join(__dirname, '.env.example');
+
+// Create a .env.example if it doesn't exist to serve as a template
+if (!fs.existsSync(envExamplePath)) {
+    const exampleContent = [
+        '# MongoDB Connection',
+        'MONGODB_URI=your_mongodb_connection_string',
+        '',
+        '# JWT Secret - A new one will be generated if this is a placeholder',
+        'JWT_SECRET=your_super_secret_key_for_jwt',
+        '',
+        '# Google OAuth Credentials',
+        'GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com',
+        'GOOGLE_CLIENT_SECRET=your_google_client_secret',
+        '',
+        '# Frontend URL (e.g., http://localhost:5173 or https://supernovaind.com)',
+        'FRONTEND_URL=http://localhost:5173'
+    ].join('\n');
+    fs.writeFileSync(envExamplePath, exampleContent);
+    console.log('✅ Created .env.example file. Use it as a template.');
+}
+
+// If .env doesn't exist, copy from .env.example
 if (!fs.existsSync(envPath)) {
-  console.log('❌ .env file not found');
-  console.log('Please create .env file with required configuration');
-} else {
+    fs.copyFileSync(envExamplePath, envPath);
+    console.log('❌ .env file not found. A new .env file has been created from the template.');
+    console.log('   Please update it with your actual credentials.');
+}
+
   const envContent = fs.readFileSync(envPath, 'utf8');
   
   // Check for required variables
-  const requiredVars = ['JWT_SECRET', 'MONGODB_URI'];
+  const requiredVars = [
+    'JWT_SECRET', 
+    'MONGODB_URI', 
+    'GOOGLE_CLIENT_ID', 
+    'GOOGLE_CLIENT_SECRET',
+    'FRONTEND_URL' // e.g., http://localhost:3000 or https://supernovaind.com
+  ];
   const missingVars = [];
+
+  const jwtSecretLine = envContent.split('\n').find(line => line.startsWith('JWT_SECRET='));
+  const jwtIsPlaceholder = !jwtSecretLine || jwtSecretLine.includes('your_') || jwtSecretLine.split('=')[1].trim() === '';
   
   requiredVars.forEach(varName => {
     if (!envContent.includes(varName) || envContent.includes(`${varName}=your_`)) {
@@ -50,14 +84,18 @@ if (!fs.existsSync(envPath)) {
   } else {
     console.log('✅ Environment variables configured');
   }
+
+// 3. Generate a secure JWT secret if it's missing or a placeholder
+if (fs.existsSync(envPath)) {
+  const envContent = fs.readFileSync(envPath, 'utf8');
+  const jwtIsPlaceholder = !envContent.includes('JWT_SECRET=') || envContent.includes('JWT_SECRET=your_');
+  if (jwtIsPlaceholder) {
+    const crypto = require('crypto');
+    const secureJwtSecret = crypto.randomBytes(64).toString('hex');
+    console.log('\n🔐 Your JWT_SECRET is missing or is a placeholder. Use this generated one in your .env file:');
+    console.log(`JWT_SECRET=${secureJwtSecret}`);
+  }
 }
-
-// 3. Generate a secure JWT secret if needed
-const crypto = require('crypto');
-const secureJwtSecret = crypto.randomBytes(64).toString('hex');
-console.log('\n🔐 Generated secure JWT secret (use this in your .env):');
-console.log(`JWT_SECRET=${secureJwtSecret}`);
-
 console.log('\n🚀 Server fix completed!');
 console.log('\nNext steps:');
 console.log('1. Update your .env file with the JWT_SECRET above');

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Auth</title>
+</head>
+<body>
+    <div style="text-align: center; padding: 50px; font-family: Arial;">
+        <h3>Completing Google Sign Up...</h3>
+        <div style="margin: 20px 0;">Please wait...</div>
+    </div>
+
+    <script>
+        // Get code from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        
+        if (code) {
+            // Send the authorization code to the backend.
+            // The backend will securely exchange it for a Google access token,
+            // fetch user info, create an account, and generate a session token (JWT).
+            fetch('/api/auth/google/complete', { // Assumes a backend endpoint
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: code })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Backend authentication failed');
+                return res.json();
+            })
+            .then(data => {
+                // Assuming the backend returns its own JWT and user info
+                // e.g., { token: 'your_jwt', user: { ... } }
+                if (data.token && data.user) {
+                    // Store the session token and user data in localStorage.
+                    // The main application window can listen for storage events
+                    // to automatically log the user in.
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                }
+            })
+            .catch(error => {
+                console.error('Google Sign-Up error:', error);
+            })
+            .finally(() => {
+                // Close the popup window.
+                setTimeout(() => window.close(), 500); // A small delay can help ensure localStorage is written
+            });
+        } else {
+            window.close();
+        }
+    </script>
+</body>
+</html>
+                window.close();
+            });
+        } else {
+            window.close();
+        }
+    </script>
+</body>
+</html>

@@ -4,10 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Phone, Copy, CheckCircle, Loader2, Sparkles, Star, Shield, Headphones, MessageCircle, Play, ArrowRight, Users, Clock, Bot, Zap, HelpCircle, Settings, BarChart3, Send, Minimize2, Maximize2, Video, FileText, Download, TrendingUp, Calendar, Globe, Brain, Mic } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE_URL } from '@/config/api';
-import { isUserAuthenticated } from '@/utils/auth';
 import { getCallGenieNumber } from '@/utils/config';
 
 interface DashboardProps {
@@ -103,22 +100,11 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
     }, 1000 + Math.random() * 1000);
   };
 
-  const { user } = useAuth();
+  // Removed auth check since user is already on dashboard
 
   const handleTryCallGenie = async () => {
-    console.log('User state:', user); // Debug log
-    
-    // Check for authentication from multiple sources
-    const isAuthenticated = user || isUserAuthenticated();
-    
-    if (!isAuthenticated) {
-      console.log('No authentication found, redirecting to signup');
-      navigate('/signup');
-      return;
-    }
-    
-    console.log('User authenticated, proceeding with CallGenie setup');
-    // If user is authenticated, proceed with CallGenie setup
+    // Always proceed with CallGenie setup since user is on dashboard
+    console.log('Starting CallGenie setup from dashboard');
     
     setShowCallGenie(true);
     setLoading(true);

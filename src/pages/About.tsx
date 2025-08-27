@@ -163,56 +163,106 @@ export const About: React.FC = () => {
           transition={{ duration: 1, delay: 0.6 }}
           className="mb-20"
         >
-          <h2 className="text-3xl font-bold text-white mb-8 text-center">Meet Our Team</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="relative">
-              <div className="bg-gradient-to-br from-purple-500/20 to-violet-500/20 p-8 rounded-3xl border border-purple-500/30 backdrop-blur-sm">
-                <div className="flex items-center justify-center mb-6">
-                  <img 
-                    src="/ceo.jpg" 
-                    alt="Rituraj and Aayush - CallGenie Founders" 
-                    className="w-48 h-48 object-cover object-center rounded-2xl shadow-2xl"
-                  />
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-white mb-4">Meet Our Team</h2>
+            <p className="text-purple-100/70 text-lg max-w-2xl mx-auto">
+              The passionate minds behind CallGenie's revolutionary AI voice technology
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {/* Founder 1 */}
+            <motion.div 
+              className="bg-gradient-to-br from-purple-500/10 to-violet-500/10 p-8 rounded-3xl border border-purple-500/20 backdrop-blur-sm hover:border-purple-400/40 transition-all duration-300 group"
+              whileHover={{ y: -10, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <div className="text-center">
+                <div className="w-24 h-24 bg-gradient-to-br from-purple-600 to-violet-700 rounded-full mx-auto mb-6 flex items-center justify-center shadow-2xl group-hover:shadow-purple-500/50 transition-all duration-300">
+                  <span className="text-2xl font-bold text-white">RS</span>
                 </div>
-                <div className="text-center">
-                  <h3 className="text-2xl font-bold text-white mb-2">The Founding Duo</h3>
-                  <p className="text-purple-300 mb-4">Rituraj Suryawanshi & Aayush Purohit</p>
-                  <p className="text-white/70 leading-relaxed">
-                    From an idea sketched on a late-night call to a vision transforming into reality, we bring complementary skills, relentless drive, and a shared dream to create something impactful.
-                  </p>
+                <h3 className="text-xl font-bold text-white mb-2">Rituraj Suryawanshi</h3>
+                <p className="text-purple-400 text-sm mb-4 font-medium">Founder & CEO</p>
+                <p className="text-white/70 text-sm leading-relaxed mb-4">
+                  Visionary leader driving AI innovation in voice technology. Expert in strategic planning and business development.
+                </p>
+                <div className="flex justify-center space-x-3">
+                  <div className="w-8 h-8 bg-purple-600/20 rounded-full flex items-center justify-center hover:bg-purple-600/40 transition-colors cursor-pointer">
+                    <span className="text-xs text-purple-300">in</span>
+                  </div>
+                  <div className="w-8 h-8 bg-purple-600/20 rounded-full flex items-center justify-center hover:bg-purple-600/40 transition-colors cursor-pointer">
+                    <span className="text-xs text-purple-300">@</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="space-y-6">
-              <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-purple-800 rounded-full flex items-center justify-center">
-                    <span className="text-lg font-bold text-white">RS</span>
+            </motion.div>
+
+            {/* Founder 2 */}
+            <motion.div 
+              className="bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 p-8 rounded-3xl border border-violet-500/20 backdrop-blur-sm hover:border-violet-400/40 transition-all duration-300 group"
+              whileHover={{ y: -10, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <div className="text-center">
+                <div className="w-24 h-24 bg-gradient-to-br from-violet-600 to-fuchsia-700 rounded-full mx-auto mb-6 flex items-center justify-center shadow-2xl group-hover:shadow-violet-500/50 transition-all duration-300">
+                  <span className="text-2xl font-bold text-white">AP</span>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Aayush Purohit</h3>
+                <p className="text-violet-400 text-sm mb-4 font-medium">Co-Founder & CTO</p>
+                <p className="text-white/70 text-sm leading-relaxed mb-4">
+                  Technical architect specializing in AI systems and scalable infrastructure. Ensures robust technology delivery.
+                </p>
+                <div className="flex justify-center space-x-3">
+                  <div className="w-8 h-8 bg-violet-600/20 rounded-full flex items-center justify-center hover:bg-violet-600/40 transition-colors cursor-pointer">
+                    <span className="text-xs text-violet-300">in</span>
                   </div>
-                  <div>
-                    <h4 className="text-lg font-bold text-white">Rituraj Suryawanshi</h4>
-                    <p className="text-purple-400 text-sm">Founder & CEO</p>
+                  <div className="w-8 h-8 bg-violet-600/20 rounded-full flex items-center justify-center hover:bg-violet-600/40 transition-colors cursor-pointer">
+                    <span className="text-xs text-violet-300">@</span>
                   </div>
                 </div>
-                <p className="text-white/70 text-sm leading-relaxed">
-                  A visionary leader with a passion for AI and innovation. Rituraj brings strategic thinking and technical expertise to drive CallGenie's mission.
-                </p>
               </div>
-              
-              <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-purple-800 rounded-full flex items-center justify-center">
-                    <span className="text-lg font-bold text-white">AP</span>
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-bold text-white">Aayush Purohit</h4>
-                    <p className="text-purple-400 text-sm">Co-Founder & CTO</p>
-                  </div>
+            </motion.div>
+
+            {/* Join Team Card */}
+            <motion.div 
+              className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 p-8 rounded-3xl border border-emerald-500/20 backdrop-blur-sm hover:border-emerald-400/40 transition-all duration-300 group cursor-pointer"
+              whileHover={{ y: -10, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <div className="text-center">
+                <div className="w-24 h-24 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-full mx-auto mb-6 flex items-center justify-center shadow-2xl group-hover:shadow-emerald-500/50 transition-all duration-300">
+                  <Users className="h-10 w-10 text-white" />
                 </div>
-                <p className="text-white/70 text-sm leading-relaxed">
-                  A technical mastermind with deep expertise in software architecture and AI implementation. Aayush ensures robust, scalable technology delivery.
+                <h3 className="text-xl font-bold text-white mb-2">Join Our Team</h3>
+                <p className="text-emerald-400 text-sm mb-4 font-medium">We're Hiring!</p>
+                <p className="text-white/70 text-sm leading-relaxed mb-4">
+                  Passionate about AI and voice technology? Join us in revolutionizing business communication.
                 </p>
+                <button className="px-6 py-2 bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 rounded-full text-sm font-medium transition-all duration-300 border border-emerald-500/30">
+                  View Openings
+                </button>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Team Stats */}
+          <div className="bg-gradient-to-r from-purple-500/10 to-violet-500/10 rounded-2xl p-8 border border-purple-500/20">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+              <div>
+                <div className="text-3xl font-bold text-purple-400 mb-2">2</div>
+                <div className="text-white/70 text-sm">Founders</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-violet-400 mb-2">5+</div>
+                <div className="text-white/70 text-sm">Years Experience</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-fuchsia-400 mb-2">24/7</div>
+                <div className="text-white/70 text-sm">Dedication</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-emerald-400 mb-2">∞</div>
+                <div className="text-white/70 text-sm">Innovation</div>
               </div>
             </div>
           </div>

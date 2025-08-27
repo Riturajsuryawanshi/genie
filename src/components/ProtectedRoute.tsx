@@ -1,27 +1,21 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { LoadingSpinner } from './LoadingSpinner';
-import { isUserAuthenticated } from '@/utils/auth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth();
+  const { user: firebaseUser, loading } = useFirebaseAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading) {
-      // Check for authentication from multiple sources
-      const isAuthenticated = user || isUserAuthenticated();
-      
-      if (!isAuthenticated) {
-        navigate('/signup');
-      }
+    if (!loading && !firebaseUser) {
+      navigate('/login');
     }
-  }, [user, loading, navigate]);
+  }, [firebaseUser, loading, navigate]);
 
   if (loading) {
     return (
@@ -31,10 +25,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  // Check for authentication from multiple sources
-  const isAuthenticated = user || isUserAuthenticated();
-
-  if (!isAuthenticated) {
+  if (!firebaseUser) {
     return null; // Will redirect in useEffect
   }
 

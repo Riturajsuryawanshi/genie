@@ -1,7 +1,7 @@
 // API configuration
 const getApiBaseUrl = () => {
   // Use Hostinger production backend
-  return 'https://yourdomain.com/api';
+  return 'https://supernovaind.com/api';
 };
 
 const API_BASE_URL = getApiBaseUrl();

@@ -2,8 +2,8 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://odzagbhwjbphufqgcray.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kemFnYmh3amJwaHVmcWdjcmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1NjYyMDAsImV4cCI6MjA2NzE0MjIwMH0.gYcMJgQ0b5EVAkLfoABtquIN2mJjLk2UrBrzf_WyKto";
+const SUPABASE_URL = "https://vegbhakginvysiaaqnatk.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlZ2JoYWtnaW52eXNpYXFuYXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMzAzNDksImV4cCI6MjA2OTkwNjM0OX0.7MKFmLnfKv8s0LsclMTeX-9IBMLt2Rg_xPFjNjuxDS0";
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,11 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   global: {
     headers: {
       'x-application-name': 'CallGenie'
+    }
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 2
     }
   }
 });
