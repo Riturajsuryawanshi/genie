@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Phone, Copy, CheckCircle, Loader2, Sparkles, Star, Shield, Headphones, MessageCircle, Play, ArrowRight, Users, Clock, Bot, Zap, HelpCircle, Settings, BarChart3, Send, Minimize2, Maximize2, Video, FileText, Download, TrendingUp, Calendar, Globe, Brain, Mic } from 'lucide-react';
+import { Phone, Copy, CheckCircle, Loader2, Sparkles, Star, Shield, Headphones, MessageCircle, Play, ArrowRight, Users, Clock, Bot, Zap, HelpCircle, Settings, BarChart3, Send, Minimize2, Maximize2, Video, FileText, Download, TrendingUp, Calendar, Globe, Brain, Mic, UserCircle, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { getCallGenieNumber } from '@/utils/config';
@@ -32,6 +32,7 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
   const [newMessage, setNewMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [chatMinimized, setChatMinimized] = useState(false);
+  const [userProfile, setUserProfile] = useState({ name: '', email: '', phoneNumber: '' });
   const chatEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -70,6 +71,14 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
+
+  useEffect(() => {
+    // Load user profile from localStorage
+    const savedProfile = localStorage.getItem('callgenie_profile');
+    if (savedProfile) {
+      setUserProfile(JSON.parse(savedProfile));
+    }
+  }, []);
 
   const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
@@ -164,6 +173,52 @@ export const Dashboard = ({ activeTab, setActiveTab, copyNumber }: DashboardProp
                 <MessageCircle className="mr-2 h-4 w-4" />
                 Live Support
               </Button>
+              
+              {/* Profile Dropdown */}
+              <div className="relative group">
+                <button className="w-10 h-10 bg-gradient-to-br from-purple-600 to-violet-700 rounded-full flex items-center justify-center hover:from-purple-700 hover:to-violet-800 transition-all">
+                  <UserCircle className="h-5 w-5 text-white" />
+                </button>
+                
+                {/* Dropdown Menu */}
+                <div className="absolute right-0 top-12 w-56 bg-black/95 backdrop-blur-sm border border-purple-500/30 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="p-4 border-b border-purple-500/20">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-violet-700 rounded-full flex items-center justify-center">
+                        <UserCircle className="h-4 w-4 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-white font-medium text-sm">{userProfile.name || 'User'}</p>
+                        <p className="text-purple-300 text-xs">{userProfile.email || 'user@example.com'}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-2">
+                    <button 
+                      onClick={() => navigate('/account-settings')}
+                      className="w-full flex items-center gap-3 px-3 py-2 text-sm text-purple-300 hover:text-white hover:bg-purple-500/20 rounded transition-colors"
+                    >
+                      <Settings className="h-4 w-4" />
+                      Account Settings
+                    </button>
+                    <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-purple-300 hover:text-white hover:bg-purple-500/20 rounded transition-colors">
+                      <BarChart3 className="h-4 w-4" />
+                      Usage Stats
+                    </button>
+                    <div className="border-t border-purple-500/20 my-1"></div>
+                    <button 
+                      onClick={() => {
+                        localStorage.clear();
+                        window.location.href = '/';
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition-colors"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </header>

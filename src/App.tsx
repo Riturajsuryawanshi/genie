@@ -19,6 +19,7 @@ import { About } from './pages/About';
 import { Pricing } from './pages/Pricing';
 import { Payment } from './pages/Payment';
 import { Contact } from './pages/Contact';
+import { AccountSettings } from './pages/AccountSettings';
 
 import AdminContactMessages from './pages/AdminContactMessages';
 import Admin from './pages/Admin';
@@ -50,6 +51,11 @@ const App = () => (
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/payment" element={<Payment />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/account-settings" element={
+                <ProtectedRoute>
+                  <AccountSettings />
+                </ProtectedRoute>
+              } />
 
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin/messages" element={<AdminContactMessages />} />
