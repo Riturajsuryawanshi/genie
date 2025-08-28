@@ -383,14 +383,29 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
               </button>
               
               {showAuthDropdown && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-black/90 rounded-lg shadow-xl border border-purple-500/30 py-1 z-50 backdrop-blur-sm">
-                  <div className="px-4 py-2 text-sm text-purple-200 border-b border-purple-500/30">
-                    <div className="font-medium">{firebaseUser?.email || user?.email || customUser?.email}</div>
-                    <div className="text-xs text-purple-300/50">Signed in</div>
+                <div className="absolute right-0 top-full mt-2 w-56 bg-black/95 rounded-lg shadow-xl border border-purple-500/30 py-1 z-50 backdrop-blur-sm">
+                  <div className="px-4 py-3 text-sm text-purple-200 border-b border-purple-500/30">
+                    <div className="font-medium">{firebaseUser?.displayName || firebaseUser?.email || user?.email || customUser?.email}</div>
+                    <div className="text-xs text-purple-300/50">{firebaseUser?.email || user?.email || customUser?.email}</div>
                   </div>
                   <button
-                    onClick={handleSignOut}
+                    onClick={() => navigate('/account-settings')}
                     className="w-full text-left px-4 py-2 text-sm text-purple-200 hover:bg-purple-500/20 flex items-center space-x-2 transition-colors"
+                  >
+                    <User className="h-4 w-4" />
+                    <span>Account Settings</span>
+                  </button>
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="w-full text-left px-4 py-2 text-sm text-purple-200 hover:bg-purple-500/20 flex items-center space-x-2 transition-colors"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    <span>Dashboard</span>
+                  </button>
+                  <div className="border-t border-purple-500/20 my-1"></div>
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full text-left px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 flex items-center space-x-2 transition-colors"
                   >
                     <LogOut className="h-4 w-4" />
                     <span>Sign out</span>
@@ -398,7 +413,22 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
                 </div>
               )}
             </div>
-          ) : null}
+          ) : (
+            <div className="flex items-center space-x-2">
+              <button 
+                onClick={() => setShowLogin(true)}
+                className="px-4 py-2 text-purple-200 hover:text-white transition-colors font-medium"
+              >
+                Sign In
+              </button>
+              <button 
+                onClick={() => setShowSignup(true)}
+                className="px-6 py-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-violet-700 transition-all"
+              >
+                Sign Up
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
@@ -462,20 +492,22 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
                 </p>
               </motion.div>
 
-              <motion.div
-                variants={fadeUpVariants}
-                initial="hidden"
-                animate="visible"
-                transition={{ duration: 1, delay: 1.1, ease: "easeOut" }}
-              >
-                <button
-                  className="px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold shadow-2xl shadow-purple-500/25 hover:scale-105 hover:shadow-3xl hover:shadow-purple-500/40 transition-all duration-300 text-lg relative overflow-hidden group"
-                  onClick={() => navigate('/signup')}
+              {!(firebaseUser || user || customUser) && (
+                <motion.div
+                  variants={fadeUpVariants}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ duration: 1, delay: 1.1, ease: "easeOut" }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <span className="relative z-10">Sign Up</span>
-                </button>
-              </motion.div>
+                  <button
+                    className="px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold shadow-2xl shadow-purple-500/25 hover:scale-105 hover:shadow-3xl hover:shadow-purple-500/40 transition-all duration-300 text-lg relative overflow-hidden group"
+                    onClick={() => navigate('/signup')}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <span className="relative z-10">Sign Up</span>
+                  </button>
+                </motion.div>
+              )}
             </div>
           </div>
         </SectionWithShapes>

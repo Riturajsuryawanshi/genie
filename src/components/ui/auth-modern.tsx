@@ -32,20 +32,40 @@ const AuthModern = ({ onSuccess }: AuthModernProps) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { displayName: name });
         
+        // Save user profile to localStorage
+        const userProfile = {
+          name: name,
+          email: email,
+          phoneNumber: ''
+        };
+        localStorage.setItem('callgenie_profile', JSON.stringify(userProfile));
+        
         toast({
           title: 'Welcome to CallGenie!',
           description: 'Your account has been created successfully.',
         });
         setTimeout(() => {
-          window.location.href = '/';
+          window.location.href = '/dashboard';
         }, 500);
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        
+        // Save/update user profile if not exists
+        const existingProfile = localStorage.getItem('callgenie_profile');
+        if (!existingProfile) {
+          const userProfile = {
+            name: userCredential.user.displayName || '',
+            email: userCredential.user.email || '',
+            phoneNumber: ''
+          };
+          localStorage.setItem('callgenie_profile', JSON.stringify(userProfile));
+        }
+        
         toast({
           title: 'Welcome back!',
           description: 'You have been logged in successfully.',
         });
-        window.location.href = '/';
+        window.location.href = '/dashboard';
       }
     } catch (error: any) {
       const errorMessage = error.code === 'auth/user-not-found' ? 'No account found with this email.' :
@@ -68,7 +88,16 @@ const AuthModern = ({ onSuccess }: AuthModernProps) => {
   const handleGoogleAuth = async () => {
     setIsLoading(true);
     try {
-      await signInWithPopup(auth, googleProvider);
+      const userCredential = await signInWithPopup(auth, googleProvider);
+      
+      // Save user profile to localStorage
+      const userProfile = {
+        name: userCredential.user.displayName || '',
+        email: userCredential.user.email || '',
+        phoneNumber: ''
+      };
+      localStorage.setItem('callgenie_profile', JSON.stringify(userProfile));
+      
       toast({
         title: 'Welcome!',
         description: `Successfully ${isSignUp ? 'signed up' : 'signed in'} with Google.`,
@@ -76,16 +105,16 @@ const AuthModern = ({ onSuccess }: AuthModernProps) => {
       
       if (isSignUp) {
         await firebaseSignOut(auth);
-        localStorage.clear();
+        localStorage.removeItem('callgenie_profile'); // Only remove profile, keep theme
         toast({
           title: 'Welcome to CallGenie!',
           description: 'Successfully signed up with Google.',
         });
         setTimeout(() => {
-          window.location.href = '/';
+          window.location.href = '/dashboard';
         }, 500);
       } else {
-        window.location.href = '/';
+        window.location.href = '/dashboard';
       }
     } catch (error: any) {
       toast({
