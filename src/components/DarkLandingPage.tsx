@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Circle, Phone, MessageSquare, Brain, Shield, Mail, MapPin, LogIn, ChevronRight, User, LogOut, Star, Check, ArrowRight, X, Send, AlertCircle, CheckCircle } from "lucide-react";
+import { Circle, Phone, MessageSquare, Brain, Shield, Mail, MapPin, LogIn, ChevronRight, User, LogOut, Star, Check, ArrowRight, X, Send, AlertCircle, CheckCircle, Menu } from "lucide-react";
 import { GoogleSignInButton } from './GoogleSignInButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { auth } from '@/lib/firebase';
@@ -105,6 +105,7 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
   const [showSignup, setShowSignup] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showLearnMore, setShowLearnMore] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const navigate = useNavigate();
   
   // Contact form state
@@ -338,13 +339,13 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
       )}
 
       {/* Header */}
-      <header className="px-4 lg:px-6 h-16 lg:h-20 flex items-center border-b border-purple-500/20 bg-black/90 backdrop-blur-sm">
-        <div className="flex items-center justify-center">
+      <header className="px-4 lg:px-6 h-16 flex items-center justify-between border-b border-purple-500/20 bg-black/90 backdrop-blur-sm relative">
+        <div className="flex items-center">
           <AnimatedLogo />
         </div>
         
-        {/* Navigation Links */}
-        <nav className="hidden lg:flex items-center space-x-4 lg:space-x-8 mx-auto">
+        {/* Desktop Navigation */}
+        <nav className="hidden lg:flex items-center space-x-8">
           <a href="/saathi" className="text-purple-200/70 hover:text-purple-100 transition-colors font-medium">
             SAATHI
           </a>
@@ -360,7 +361,6 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
           >
             About
           </button>
-
           <button 
             onClick={() => navigate('/contact')}
             className="text-purple-200/70 hover:text-white hover:bg-purple-600/20 transition-all duration-300 font-medium px-3 py-1 rounded-lg hover:shadow-lg hover:shadow-purple-500/25"
@@ -369,8 +369,8 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
           </button>
         </nav>
 
-        {/* Sign In/Up Buttons */}
-        <div className="flex items-center space-x-2 lg:space-x-4 relative" ref={dropdownRef}>
+        {/* Desktop Auth Buttons */}
+        <div className="hidden lg:flex items-center space-x-4 relative" ref={dropdownRef}>
           {(firebaseUser || user || customUser) ? (
             <div className="relative">
               <button 
@@ -430,23 +430,120 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
             </div>
           )}
         </div>
+
+        {/* Mobile Menu Button */}
+        <div className="lg:hidden flex items-center space-x-2">
+          {(firebaseUser || user || customUser) && (
+            <div className="relative" ref={dropdownRef}>
+              <button 
+                onClick={() => setShowAuthDropdown(!showAuthDropdown)}
+                className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-purple-500/10 border border-purple-500/30 hover:bg-purple-500/20 transition-all"
+              >
+                <User className="h-4 w-4" />
+              </button>
+              
+              {showAuthDropdown && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-black/95 rounded-lg shadow-xl border border-purple-500/30 py-1 z-50 backdrop-blur-sm">
+                  <div className="px-4 py-3 text-sm text-purple-200 border-b border-purple-500/30">
+                    <div className="font-medium text-xs">{firebaseUser?.displayName || firebaseUser?.email?.split('@')[0] || user?.email?.split('@')[0] || 'User'}</div>
+                  </div>
+                  <button
+                    onClick={() => { navigate('/account-settings'); setShowAuthDropdown(false); }}
+                    className="w-full text-left px-4 py-2 text-sm text-purple-200 hover:bg-purple-500/20 transition-colors"
+                  >
+                    Account Settings
+                  </button>
+                  <button
+                    onClick={() => { navigate('/dashboard'); setShowAuthDropdown(false); }}
+                    className="w-full text-left px-4 py-2 text-sm text-purple-200 hover:bg-purple-500/20 transition-colors"
+                  >
+                    Dashboard
+                  </button>
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full text-left px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          
+          <button 
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/30 hover:bg-purple-500/20 transition-all"
+          >
+            <Menu className="h-5 w-5 text-purple-200" />
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        {showMobileMenu && (
+          <div className="absolute top-full left-0 right-0 bg-black/95 backdrop-blur-sm border-b border-purple-500/20 lg:hidden z-40">
+            <nav className="px-4 py-4 space-y-3">
+              <a 
+                href="/saathi" 
+                className="block text-purple-200/70 hover:text-purple-100 transition-colors font-medium py-2"
+                onClick={() => setShowMobileMenu(false)}
+              >
+                SAATHI
+              </a>
+              <button 
+                onClick={() => { navigate('/pricing'); setShowMobileMenu(false); }}
+                className="block w-full text-left text-purple-200/70 hover:text-purple-100 transition-colors font-medium py-2"
+              >
+                Pricing
+              </button>
+              <button 
+                onClick={() => { navigate('/about'); setShowMobileMenu(false); }}
+                className="block w-full text-left text-purple-200/70 hover:text-purple-100 transition-colors font-medium py-2"
+              >
+                About
+              </button>
+              <button 
+                onClick={() => { navigate('/contact'); setShowMobileMenu(false); }}
+                className="block w-full text-left text-purple-200/70 hover:text-purple-100 transition-colors font-medium py-2"
+              >
+                Contact
+              </button>
+              
+              {!(firebaseUser || user || customUser) && (
+                <div className="pt-3 border-t border-purple-500/20 space-y-2">
+                  <button 
+                    onClick={() => { setShowLogin(true); setShowMobileMenu(false); }}
+                    className="block w-full text-left text-purple-200 hover:text-white transition-colors font-medium py-2"
+                  >
+                    Sign In
+                  </button>
+                  <button 
+                    onClick={() => { setShowSignup(true); setShowMobileMenu(false); }}
+                    className="block w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-violet-700 transition-all text-center"
+                  >
+                    Sign Up
+                  </button>
+                </div>
+              )}
+            </nav>
+          </div>
+        )}
       </header>
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col">
         {/* Hero Section */}
-        <SectionWithShapes className="min-h-screen flex items-center justify-center">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="max-w-3xl mx-auto text-center">
+        <SectionWithShapes className="min-h-screen flex items-center justify-center px-4">
+          <div className="container mx-auto">
+            <div className="max-w-4xl mx-auto text-center">
               <motion.div
                 variants={fadeUpVariants}
                 initial="hidden"
                 animate="visible"
                 transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/30 mb-8 backdrop-blur-sm"
+                className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/30 mb-6 sm:mb-8 backdrop-blur-sm"
               >
                 <Circle className="h-2 w-2 fill-purple-400 animate-pulse" />
-                <span className="text-sm text-purple-200/80 tracking-wide font-medium">
+                <span className="text-xs sm:text-sm text-purple-200/80 tracking-wide font-medium">
                   CallGenie AI
                 </span>
               </motion.div>
@@ -457,14 +554,14 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
                 transition={{ duration: 1.2, delay: 0.7, ease: "easeOut" }}
               >
                 <motion.h1 
-                  className="text-5xl sm:text-6xl md:text-7xl font-serif font-bold mb-6 md:mb-8 tracking-normal text-purple-400"
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-bold mb-4 sm:mb-6 md:mb-8 tracking-normal text-purple-400 leading-tight"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 1.2, delay: 0.7, ease: "easeOut" }}
                 >
                   <motion.span 
                     className="block font-serif"
-                    initial={{ x: -100, opacity: 0 }}
+                    initial={{ x: -50, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ duration: 0.8, delay: 1 }}
                   >
@@ -472,7 +569,7 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
                   </motion.span>
                   <motion.span 
                     className="block font-serif"
-                    initial={{ x: 100, opacity: 0 }}
+                    initial={{ x: 50, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ duration: 0.8, delay: 1.3 }}
                   >
@@ -487,7 +584,7 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
                 animate="visible"
                 transition={{ duration: 1, delay: 0.9, ease: "easeOut" }}
               >
-                <p className="text-lg sm:text-xl md:text-2xl text-purple-200/70 mb-10 leading-relaxed font-light max-w-2xl mx-auto">
+                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-purple-200/70 mb-8 sm:mb-10 leading-relaxed font-light max-w-3xl mx-auto px-4">
                   Experience the future of voice interaction with intelligent AI that understands and responds naturally.
                 </p>
               </motion.div>
@@ -500,7 +597,7 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
                   transition={{ duration: 1, delay: 1.1, ease: "easeOut" }}
                 >
                   <button
-                    className="px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold shadow-2xl shadow-purple-500/25 hover:scale-105 hover:shadow-3xl hover:shadow-purple-500/40 transition-all duration-300 text-lg relative overflow-hidden group"
+                    className="px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold shadow-2xl shadow-purple-500/25 hover:scale-105 hover:shadow-3xl hover:shadow-purple-500/40 transition-all duration-300 text-base sm:text-lg relative overflow-hidden group"
                     onClick={() => navigate('/signup')}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -513,33 +610,35 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
         </SectionWithShapes>
 
         {/* Experience the Future Section */}
-        <SectionWithShapes className="py-24">
-          <div className="container mx-auto px-4 md:px-6">
+        <SectionWithShapes className="py-12 sm:py-16 md:py-20 lg:py-24">
+          <div className="container mx-auto px-4">
             <motion.div
-              initial={{ opacity: 0, y: 100 }}
+              initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 1.2, ease: "easeOut" }}
-              className="text-center mb-12"
+              className="text-center mb-8 sm:mb-12"
             >
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-white">
                 Experience the{" "}
                 <span className="bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">
                   Future
                 </span>
               </h2>
-              <p className="text-xl text-purple-100/80 max-w-2xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl text-purple-100/80 max-w-2xl mx-auto px-4">
                 Interact with our AI-powered interface and discover the next generation of voice communication
               </p>
-              <div className="w-24 h-1 bg-gradient-to-r from-purple-400 to-violet-400 mx-auto mt-6 rounded-full"></div>
+              <div className="w-16 sm:w-20 md:w-24 h-1 bg-gradient-to-r from-purple-400 to-violet-400 mx-auto mt-4 sm:mt-6 rounded-full"></div>
             </motion.div>
-            <SplineSceneBasic />
-            <div className="text-center mt-10">
-              <p className="text-purple-100/80 text-lg mb-6">
+            <div className="max-w-4xl mx-auto">
+              <SplineSceneBasic />
+            </div>
+            <div className="text-center mt-6 sm:mt-8 md:mt-10">
+              <p className="text-purple-100/80 text-base sm:text-lg mb-4 sm:mb-6 px-4">
                 Experience the power of AI-driven voice communication
               </p>
               <button
-                className="px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold shadow-2xl shadow-purple-500/25 hover:scale-105 hover:shadow-3xl hover:shadow-purple-500/40 transition-all duration-300 text-lg relative overflow-hidden group"
+                className="px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold shadow-2xl shadow-purple-500/25 hover:scale-105 hover:shadow-3xl hover:shadow-purple-500/40 transition-all duration-300 text-base sm:text-lg relative overflow-hidden group"
                 onClick={() => {
                   if (firebaseUser || user || customUser) {
                     window.location.href = '/dashboard';
@@ -760,53 +859,53 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
 
 
         {/* Features Section */}
-        <SectionWithShapes className="py-24" id="features">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+        <SectionWithShapes className="py-12 sm:py-16 md:py-20 lg:py-24" id="features">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start">
               <motion.div
-                initial={{ opacity: 0, x: -100 }}
+                initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 1, ease: "easeOut" }}
-                className="mb-16"
+                className="mb-8 lg:mb-16"
               >
-                <h2 className="text-5xl md:text-6xl font-bold text-white mb-4">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
                   Why Choose{" "}
                   <span className="bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">
                     CallGenie?
                   </span>
                 </h2>
-                <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-violet-500 rounded-full mb-8"></div>
-                <div className="space-y-8">
-                  <div className="flex items-start space-x-6">
-                    <div className="bg-gradient-to-br from-purple-500 to-violet-600 p-4 rounded-2xl shadow-2xl shadow-purple-500/25 flex-shrink-0">
-                      <Brain className="h-8 w-8 text-white" />
+                <div className="w-16 sm:w-20 md:w-24 h-1 bg-gradient-to-r from-purple-500 to-violet-500 rounded-full mb-6 sm:mb-8"></div>
+                <div className="space-y-6 sm:space-y-8">
+                  <div className="flex items-start space-x-4 sm:space-x-6">
+                    <div className="bg-gradient-to-br from-purple-500 to-violet-600 p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-2xl shadow-purple-500/25 flex-shrink-0">
+                      <Brain className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold text-white mb-3">Smart AI Responses</h3>
-                      <p className="text-purple-100/80 leading-relaxed text-lg">
+                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2 sm:mb-3">Smart AI Responses</h3>
+                      <p className="text-purple-100/80 leading-relaxed text-sm sm:text-base md:text-lg">
                         Our advanced AI understands context, tone, and intent to provide natural, human-like responses that build trust with every caller.
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-start space-x-6">
-                    <div className="bg-gradient-to-br from-violet-500 to-purple-600 p-4 rounded-2xl shadow-2xl shadow-purple-500/25 flex-shrink-0">
-                      <MessageSquare className="h-8 w-8 text-white" />
+                  <div className="flex items-start space-x-4 sm:space-x-6">
+                    <div className="bg-gradient-to-br from-violet-500 to-purple-600 p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-2xl shadow-purple-500/25 flex-shrink-0">
+                      <MessageSquare className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold text-white mb-3">Intelligent Call Management</h3>
-                      <p className="text-purple-100/80 leading-relaxed text-lg">
+                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2 sm:mb-3">Intelligent Call Management</h3>
+                      <p className="text-purple-100/80 leading-relaxed text-sm sm:text-base md:text-lg">
                         Efficiently route, prioritize, and handle multiple calls simultaneously with intelligent automation that never misses an opportunity.
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-start space-x-6">
-                    <div className="bg-gradient-to-br from-fuchsia-500 to-purple-600 p-4 rounded-2xl shadow-2xl shadow-purple-500/25 flex-shrink-0">
-                      <Shield className="h-8 w-8 text-white" />
+                  <div className="flex items-start space-x-4 sm:space-x-6">
+                    <div className="bg-gradient-to-br from-fuchsia-500 to-purple-600 p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-2xl shadow-purple-500/25 flex-shrink-0">
+                      <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold text-white mb-3">Enterprise-Grade Security</h3>
-                      <p className="text-purple-100/80 leading-relaxed text-lg">
+                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2 sm:mb-3">Enterprise-Grade Security</h3>
+                      <p className="text-purple-100/80 leading-relaxed text-sm sm:text-base md:text-lg">
                         Bank-level encryption, GDPR compliance, and 99.9% uptime guarantee ensure your communications are always secure and reliable.
                       </p>
                     </div>
@@ -815,24 +914,24 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
               </motion.div>
 
               <motion.div
-                initial={{ opacity: 0, x: 100 }}
+                initial={{ opacity: 0, x: 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
                 className="relative"
               >
-                <div className="relative bg-gradient-to-br from-purple-900/30 to-violet-900/30 rounded-3xl p-8 border border-purple-500/30 backdrop-blur-sm shadow-2xl shadow-purple-500/20">
-                  <div className="text-center mb-8">
-                    <div className="bg-gradient-to-br from-purple-600 to-violet-700 p-6 rounded-3xl w-24 h-24 mx-auto mb-6 flex items-center justify-center shadow-2xl shadow-purple-500/40">
-                      <Star className="h-12 w-12 text-white" />
+                <div className="relative bg-gradient-to-br from-purple-900/30 to-violet-900/30 rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-purple-500/30 backdrop-blur-sm shadow-2xl shadow-purple-500/20">
+                  <div className="text-center mb-6 sm:mb-8">
+                    <div className="bg-gradient-to-br from-purple-600 to-violet-700 p-4 sm:p-6 rounded-2xl sm:rounded-3xl w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 mx-auto mb-4 sm:mb-6 flex items-center justify-center shadow-2xl shadow-purple-500/40">
+                      <Star className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 text-white" />
                     </div>
-                    <h3 className="text-3xl font-bold text-white mb-4">Start Your Free Trial</h3>
-                    <p className="text-purple-100/80 text-lg">
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-3 sm:mb-4">Start Your Free Trial</h3>
+                    <p className="text-purple-100/80 text-sm sm:text-base md:text-lg">
                       Experience premium AI call features with no credit card required
                     </p>
                   </div>
 
-                  <div className="space-y-4 mb-8">
+                  <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
                     {[
                       "7-day free trial",
                       "No credit card required",
@@ -841,13 +940,11 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
                       "Easy setup in minutes"
                     ].map((item, index) => (
                       <div key={item} className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-violet-400 rounded-full"></div>
-                        <span className="text-purple-100/90">{item}</span>
+                        <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-violet-400 rounded-full flex-shrink-0"></div>
+                        <span className="text-purple-100/90 text-sm sm:text-base">{item}</span>
                       </div>
                     ))}
                   </div>
-
-
                 </div>
               </motion.div>
             </div>
@@ -855,18 +952,18 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
         </SectionWithShapes>
 
         {/* CallGenie AI Showcase Section */}
-        <SectionWithShapes className="py-32" id="showcase">
-          <div className="container mx-auto px-4 md:px-6">
+        <SectionWithShapes className="py-16 sm:py-20 md:py-24 lg:py-32" id="showcase">
+          <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 1.2, ease: "easeOut" }}
-              className="text-center max-w-6xl mx-auto"
+              className="text-center max-w-6xl mx-auto relative"
             >
               <motion.h2 
-                className="text-5xl md:text-6xl lg:text-8xl font-serif font-normal leading-[1.1] text-white tracking-normal"
-                initial={{ opacity: 0, y: 100 }}
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-8xl font-serif font-normal leading-[1.1] text-white tracking-normal px-4"
+                initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1.5, ease: [0.25, 0.46, 0.45, 0.94] }}
@@ -878,31 +975,23 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 1.8, delay: 0.3, ease: "easeOut" }}
-                  whileHover={{ 
-                    scale: 1.05,
-                    transition: { duration: 0.3 }
-                  }}
                 >
                   enterprise-grade security
                 </motion.span>
                 <br />
                 <motion.span 
                   className="bg-gradient-to-r from-violet-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent font-serif italic"
-                  initial={{ opacity: 0, x: -50 }}
+                  initial={{ opacity: 0, x: -30 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 1.6, delay: 0.6, ease: "easeOut" }}
-                  whileHover={{ 
-                    scale: 1.05,
-                    transition: { duration: 0.3 }
-                  }}
                 >
                   and privacy,
                 </motion.span>{" "}
                 you can make
                 <br />
                 <motion.span
-                  initial={{ opacity: 0, y: 50 }}
+                  initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 1.4, delay: 0.9, ease: "easeOut" }}
@@ -910,23 +999,19 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
                   and receive calls with confidence
                 </motion.span>
                 <motion.span 
-                  className="text-purple-400 text-6xl md:text-7xl lg:text-9xl font-serif"
+                  className="text-purple-400 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-9xl font-serif"
                   initial={{ opacity: 0, scale: 0 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 1, delay: 1.2, ease: "easeOut" }}
-                  whileHover={{ 
-                    rotate: 360,
-                    transition: { duration: 0.8 }
-                  }}
                 >
                   .
                 </motion.span>
               </motion.h2>
               
-              {/* Floating elements animation */}
+              {/* Floating elements animation - hidden on mobile for performance */}
               <motion.div
-                className="absolute inset-0 pointer-events-none"
+                className="absolute inset-0 pointer-events-none hidden md:block"
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
@@ -959,72 +1044,72 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
         </SectionWithShapes>
 
         {/* About Section */}
-        <SectionWithShapes className="py-32" id="about">
-          <div className="container mx-auto px-4 md:px-6">
+        <SectionWithShapes className="py-16 sm:py-20 md:py-24 lg:py-32" id="about">
+          <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 1, delay: 0.2 }}
-              className="text-center mb-16"
+              className="text-center mb-12 sm:mb-16"
             >
-              <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-500/20 to-violet-500/20 px-4 py-2 rounded-full border border-purple-500/30 mb-6">
+              <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-500/20 to-violet-500/20 px-3 sm:px-4 py-2 rounded-full border border-purple-500/30 mb-4 sm:mb-6">
                 <Star className="h-4 w-4 text-purple-400" />
-                <span className="text-purple-300 text-sm font-medium">About CallGenie</span>
+                <span className="text-purple-300 text-xs sm:text-sm font-medium">About CallGenie</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-white">
                 Revolutionizing{" "}
                 <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
                   Communication
                 </span>
               </h2>
-              <p className="text-xl text-purple-100/70 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-purple-100/70 max-w-3xl mx-auto leading-relaxed px-4">
                 Born from innovation, powered by AI, designed for the future of business communication
               </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center mb-12 sm:mb-16 lg:mb-20">
               <motion.div
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1, delay: 0.3 }}
-                className="space-y-8"
+                className="space-y-6 sm:space-y-8"
               >
-                <div className="space-y-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="bg-gradient-to-br from-purple-500 to-violet-600 p-3 rounded-xl flex-shrink-0">
-                      <Brain className="h-6 w-6 text-white" />
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="flex items-start space-x-3 sm:space-x-4">
+                    <div className="bg-gradient-to-br from-purple-500 to-violet-600 p-2 sm:p-3 rounded-lg sm:rounded-xl flex-shrink-0">
+                      <Brain className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-white mb-2">AI-First Approach</h3>
-                      <p className="text-purple-100/60 leading-relaxed">
+                      <h3 className="text-lg sm:text-xl font-bold text-white mb-2">AI-First Approach</h3>
+                      <p className="text-purple-100/60 leading-relaxed text-sm sm:text-base">
                         CallGenie was born from the vision of revolutionizing how businesses handle phone communications.
                         We understand that every call is an opportunity to build relationships and drive growth.
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-start space-x-4">
-                    <div className="bg-gradient-to-br from-violet-500 to-purple-600 p-3 rounded-xl flex-shrink-0">
-                      <Shield className="h-6 w-6 text-white" />
+                  <div className="flex items-start space-x-3 sm:space-x-4">
+                    <div className="bg-gradient-to-br from-violet-500 to-purple-600 p-2 sm:p-3 rounded-lg sm:rounded-xl flex-shrink-0">
+                      <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-white mb-2">Enterprise Ready</h3>
-                      <p className="text-purple-100/60 leading-relaxed">
+                      <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Enterprise Ready</h3>
+                      <p className="text-purple-100/60 leading-relaxed text-sm sm:text-base">
                         Our AI-powered platform combines cutting-edge natural language processing with intelligent
                         workflow automation to ensure no call goes unanswered and every interaction is meaningful.
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-start space-x-4">
-                    <div className="bg-gradient-to-br from-fuchsia-500 to-purple-600 p-3 rounded-xl flex-shrink-0">
-                      <MessageSquare className="h-6 w-6 text-white" />
+                  <div className="flex items-start space-x-3 sm:space-x-4">
+                    <div className="bg-gradient-to-br from-fuchsia-500 to-purple-600 p-2 sm:p-3 rounded-lg sm:rounded-xl flex-shrink-0">
+                      <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-white mb-2">Human-Centric Design</h3>
-                      <p className="text-purple-100/60 leading-relaxed">
+                      <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Human-Centric Design</h3>
+                      <p className="text-purple-100/60 leading-relaxed text-sm sm:text-base">
                         We believe technology should enhance human connections, not replace them. Our AI maintains
                         the warmth and understanding that customers expect from great service.
                       </p>
@@ -1032,30 +1117,30 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                   <motion.div
-                    className="text-center p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.05] transition-all cursor-pointer"
+                    className="text-center p-3 sm:p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.05] transition-all cursor-pointer"
                     whileHover={{ scale: 1.05 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
-                    <div className="text-3xl font-bold text-purple-400 mb-1">10K+</div>
-                    <div className="text-sm text-white/50">Happy Customers</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-purple-400 mb-1">10K+</div>
+                    <div className="text-xs sm:text-sm text-white/50">Happy Customers</div>
                   </motion.div>
                   <motion.div
-                    className="text-center p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.05] transition-all cursor-pointer"
+                    className="text-center p-3 sm:p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.05] transition-all cursor-pointer"
                     whileHover={{ scale: 1.05 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
-                    <div className="text-3xl font-bold text-violet-400 mb-1">99.9%</div>
-                    <div className="text-sm text-white/50">Uptime</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-violet-400 mb-1">99.9%</div>
+                    <div className="text-xs sm:text-sm text-white/50">Uptime</div>
                   </motion.div>
                   <motion.div
-                    className="text-center p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.05] transition-all cursor-pointer"
+                    className="text-center p-3 sm:p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.05] transition-all cursor-pointer"
                     whileHover={{ scale: 1.05 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
-                    <div className="text-3xl font-bold text-fuchsia-400 mb-1">24/7</div>
-                    <div className="text-sm text-white/50">AI Support</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-fuchsia-400 mb-1">24/7</div>
+                    <div className="text-xs sm:text-sm text-white/50">AI Support</div>
                   </motion.div>
                 </div>
               </motion.div>
@@ -1102,46 +1187,46 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
               transition={{ duration: 1, delay: 0.7 }}
               className="text-center"
             >
-              <h3 className="text-2xl font-bold text-white mb-8">Our Core Values</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-6 sm:mb-8">Our Core Values</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
                 <motion.div
-                  className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.05] transition-all"
+                  className="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.05] transition-all"
                   whileHover={{ y: -5 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
-                  <div className="bg-gradient-to-br from-purple-500 to-violet-600 p-3 rounded-xl w-fit mx-auto mb-4">
-                    <Brain className="h-6 w-6 text-white" />
+                  <div className="bg-gradient-to-br from-purple-500 to-violet-600 p-2 sm:p-3 rounded-lg sm:rounded-xl w-fit mx-auto mb-3 sm:mb-4">
+                    <Brain className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                   </div>
-                  <h4 className="text-lg font-semibold text-white mb-2">Innovation</h4>
-                  <p className="text-white/60 text-sm">
+                  <h4 className="text-base sm:text-lg font-semibold text-white mb-2">Innovation</h4>
+                  <p className="text-white/60 text-xs sm:text-sm leading-relaxed">
                     Constantly pushing the boundaries of what's possible with AI and communication technology.
                   </p>
                 </motion.div>
 
                 <motion.div
-                  className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.05] transition-all"
+                  className="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.05] transition-all"
                   whileHover={{ y: -5 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
-                  <div className="bg-gradient-to-br from-violet-500 to-fuchsia-600 p-3 rounded-xl w-fit mx-auto mb-4">
-                    <Shield className="h-6 w-6 text-white" />
+                  <div className="bg-gradient-to-br from-violet-500 to-fuchsia-600 p-2 sm:p-3 rounded-lg sm:rounded-xl w-fit mx-auto mb-3 sm:mb-4">
+                    <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                   </div>
-                  <h4 className="text-lg font-semibold text-white mb-2">Trust</h4>
-                  <p className="text-white/60 text-sm">
+                  <h4 className="text-base sm:text-lg font-semibold text-white mb-2">Trust</h4>
+                  <p className="text-white/60 text-xs sm:text-sm leading-relaxed">
                     Building secure, reliable solutions that businesses can depend on for their most important communications.
                   </p>
                 </motion.div>
 
                 <motion.div
-                  className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.05] transition-all"
+                  className="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.05] transition-all"
                   whileHover={{ y: -5 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
-                  <div className="bg-gradient-to-br from-fuchsia-500 to-purple-600 p-3 rounded-xl w-fit mx-auto mb-4">
-                    <MessageSquare className="h-6 w-6 text-white" />
+                  <div className="bg-gradient-to-br from-fuchsia-500 to-purple-600 p-2 sm:p-3 rounded-lg sm:rounded-xl w-fit mx-auto mb-3 sm:mb-4">
+                    <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                   </div>
-                  <h4 className="text-lg font-semibold text-white mb-2">Connection</h4>
-                  <p className="text-white/60 text-sm">
+                  <h4 className="text-base sm:text-lg font-semibold text-white mb-2">Connection</h4>
+                  <p className="text-white/60 text-xs sm:text-sm leading-relaxed">
                     Enhancing human connections through technology that understands context, emotion, and intent.
                   </p>
                 </motion.div>
@@ -1151,27 +1236,27 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
         </SectionWithShapes>
 
         {/* Contact Section */}
-        <SectionWithShapes className="py-24" id="contact">
-          <div className="container mx-auto px-4 md:px-6">
+        <SectionWithShapes className="py-12 sm:py-16 md:py-20 lg:py-24" id="contact">
+          <div className="container mx-auto px-4">
             <motion.div
               variants={fadeUpVariants}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
-              className="text-center mb-12"
+              className="text-center mb-8 sm:mb-12"
             >
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-white">
                 Get in{" "}
                 <span className="bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">
                   Touch
                 </span>
               </h2>
-              <p className="text-xl text-purple-100/70 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-purple-100/70 max-w-3xl mx-auto leading-relaxed px-4">
                 Ready to transform your phone communications? Let's talk about how CallGenie can help your business.
               </p>
             </motion.div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-5xl mx-auto">
               <motion.div
                 variants={fadeUpVariants}
                 initial="hidden"
@@ -1179,27 +1264,27 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
                 viewport={{ once: true }}
                 transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
               >
-                <h3 className="text-xl font-semibold mb-6 text-white">Contact Information</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <Mail className="h-5 w-5 text-purple-400" />
+                <h3 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6 text-white">Contact Information</h3>
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="flex items-start space-x-3 sm:space-x-4">
+                    <Mail className="h-5 w-5 text-purple-400 flex-shrink-0 mt-1" />
                     <div>
-                      <div className="font-medium text-white">Email</div>
-                      <div className="text-purple-100/60">supernovaind00@gmail.com</div>
+                      <div className="font-medium text-white text-sm sm:text-base">Email</div>
+                      <div className="text-purple-100/60 text-sm sm:text-base break-all">supernovaind00@gmail.com</div>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <MapPin className="h-5 w-5 text-purple-400" />
+                  <div className="flex items-start space-x-3 sm:space-x-4">
+                    <MapPin className="h-5 w-5 text-purple-400 flex-shrink-0 mt-1" />
                     <div>
-                      <div className="font-medium text-white">Address</div>
-                      <div className="text-purple-100/60">Bhopal MP INDIA</div>
+                      <div className="font-medium text-white text-sm sm:text-base">Address</div>
+                      <div className="text-purple-100/60 text-sm sm:text-base">Bhopal MP INDIA</div>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <Phone className="h-5 w-5 text-purple-400" />
+                  <div className="flex items-start space-x-3 sm:space-x-4">
+                    <Phone className="h-5 w-5 text-purple-400 flex-shrink-0 mt-1" />
                     <div>
-                      <div className="font-medium text-white">Phone</div>
-                      <div className="text-purple-100/60">+917089956401</div>
+                      <div className="font-medium text-white text-sm sm:text-base">Phone</div>
+                      <div className="text-purple-100/60 text-sm sm:text-base">+917089956401</div>
                     </div>
                   </div>
                 </div>
@@ -1211,7 +1296,7 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
                 viewport={{ once: true }}
                 transition={{ duration: 1, delay: 0.7, ease: "easeOut" }}
               >
-                <h3 className="text-xl font-semibold mb-6 text-white">Send us a Message</h3>
+                <h3 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6 text-white">Send us a Message</h3>
                 <form onSubmit={handleContactSubmit} className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-2 text-white/80">Name *</label>
@@ -1221,7 +1306,7 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
                       value={contactFormData.name}
                       onChange={handleContactInputChange}
                       required
-                      className="w-full px-3 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-white/40"
+                      className="w-full px-3 py-3 bg-white/[0.05] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-white/40 text-sm sm:text-base"
                       placeholder="Your name"
                     />
                   </div>
@@ -1233,7 +1318,7 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
                       value={contactFormData.email}
                       onChange={handleContactInputChange}
                       required
-                      className="w-full px-3 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-white/40"
+                      className="w-full px-3 py-3 bg-white/[0.05] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-white/40 text-sm sm:text-base"
                       placeholder="your@email.com"
                     />
                   </div>
@@ -1245,7 +1330,7 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
                       value={contactFormData.message}
                       onChange={handleContactInputChange}
                       required
-                      className="w-full px-3 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-white/40"
+                      className="w-full px-3 py-3 bg-white/[0.05] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-white/40 text-sm sm:text-base resize-none"
                       placeholder="Tell us about your project..."
                     />
                   </div>
@@ -1255,9 +1340,9 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2"
+                      className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-start gap-2"
                     >
-                      <AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" />
+                      <AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0 mt-0.5" />
                       <p className="text-red-300 text-sm">{contactError}</p>
                     </motion.div>
                   )}
@@ -1265,7 +1350,7 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
                   <button 
                     type="submit"
                     disabled={isSubmittingContact || isContactSubmitted}
-                    className="w-full py-4 bg-gradient-to-r from-purple-600 to-violet-600 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-2xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-102 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-violet-600 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-2xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-[1.02] relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                   >
                     {isContactSubmitted ? (
                       <>
@@ -1295,20 +1380,21 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
 
         {/* Build Something Real CTA Section */}
         <SectionWithShapes className="py-0">
-          <div className="mx-4 md:mx-6 mb-16">
+          <div className="mx-4 mb-8 sm:mb-12 md:mb-16">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               whileInView={{ scale: 1, opacity: 1 }}
               viewport={{ once: false, amount: 0.3 }}
               transition={{ duration: 1, ease: "easeOut" }}
-              className="bg-gradient-to-br from-purple-600 to-violet-700 rounded-3xl p-16 md:p-24 text-center shadow-2xl shadow-purple-500/20"
+              className="bg-gradient-to-br from-purple-600 to-violet-700 rounded-2xl sm:rounded-3xl p-8 sm:p-12 md:p-16 lg:p-24 text-center shadow-2xl shadow-purple-500/20"
             >
-              <h2 className="text-5xl md:text-7xl font-bold text-white mb-6">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight">
                 Transform your calls
-                <br />
+                <br className="hidden sm:block" />
+                <span className="sm:hidden"> </span>
                 <span className="text-yellow-300">instantly</span> with AI
               </h2>
-              <p className="text-xl md:text-2xl text-purple-100/80 mb-8">
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-purple-100/80 mb-6 sm:mb-8 max-w-2xl mx-auto">
                 Start your AI voice assistant journey today - completely free
               </p>
               <button
@@ -1319,7 +1405,7 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
                     navigate('/login');
                   }
                 }}
-                className="inline-block px-8 py-4 bg-white text-purple-700 rounded-xl font-bold text-lg hover:scale-105 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300 shadow-lg text-center relative overflow-hidden group"
+                className="inline-block px-6 sm:px-8 py-3 sm:py-4 bg-white text-purple-700 rounded-xl font-bold text-base sm:text-lg hover:scale-105 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300 shadow-lg text-center relative overflow-hidden group"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-rose-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <span className="relative z-10 group-hover:text-white transition-colors duration-300">{(firebaseUser || user || customUser) ? 'Try CallGenie Now' : 'Start Free Trial'}</span>
@@ -1331,36 +1417,36 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
 
       {/* Footer */}
       <footer className="border-t border-purple-500/20 bg-black/95 backdrop-blur-sm">
-        <div className="container mx-auto px-4 md:px-6 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div className="col-span-1 md:col-span-2">
+        <div className="container mx-auto px-4 py-8 sm:py-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
+            <div className="sm:col-span-2 lg:col-span-2">
               <div className="flex items-center space-x-3 mb-4">
                 <div className="bg-gradient-to-br from-purple-600 to-violet-700 p-2 rounded-xl shadow-lg shadow-purple-500/25">
-                  <Phone className="h-6 w-6 text-white" />
+                  <Phone className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
                 <div>
-                  <span className="text-xl font-bold bg-gradient-to-r from-purple-300 to-violet-300 bg-clip-text text-transparent">
+                  <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-purple-300 to-violet-300 bg-clip-text text-transparent">
                     CallGenie
                   </span>
                 </div>
               </div>
-              <p className="text-purple-100/60 text-sm mb-4 max-w-md">
+              <p className="text-purple-100/60 text-sm mb-4 max-w-md leading-relaxed">
                 Transform your phone communications with AI-powered assistance. Experience the future of intelligent call handling and customer service automation.
               </p>
-              <div className="flex items-center space-x-4">
+              <div className="space-y-2">
                 <div className="flex items-center space-x-2 text-purple-100/60 text-sm">
-                  <Mail className="h-4 w-4" />
-                  <span>supernovaind00@gmail.com</span>
+                  <Mail className="h-4 w-4 flex-shrink-0" />
+                  <span className="break-all">supernovaind00@gmail.com</span>
                 </div>
-              </div>
-              <div className="flex items-center space-x-2 text-purple-100/60 text-sm mt-2">
-                <Phone className="h-4 w-4" />
-                <span>+917089956401</span>
+                <div className="flex items-center space-x-2 text-purple-100/60 text-sm">
+                  <Phone className="h-4 w-4 flex-shrink-0" />
+                  <span>+917089956401</span>
+                </div>
               </div>
             </div>
 
             <div>
-              <h3 className="text-white font-semibold mb-4">Quick Links</h3>
+              <h3 className="text-white font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Quick Links</h3>
               <ul className="space-y-2">
                 <li><a href="#features" className="text-purple-100/60 hover:text-white transition-colors text-sm">Features</a></li>
                 <li><a href="/saathi" className="text-purple-100/60 hover:text-white transition-colors text-sm">SAATHI AI</a></li>
@@ -1370,7 +1456,7 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
             </div>
 
             <div>
-              <h3 className="text-white font-semibold mb-4">Support</h3>
+              <h3 className="text-white font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Support</h3>
               <ul className="space-y-2">
                 <li><a href="#" className="text-purple-100/60 hover:text-white transition-colors text-sm">Help Center</a></li>
                 <li><a href="#" className="text-purple-100/60 hover:text-white transition-colors text-sm">Documentation</a></li>
@@ -1381,20 +1467,20 @@ export const DarkLandingPage = ({ user: firebaseUser }: DarkLandingPageProps) =>
             </div>
           </div>
 
-          <div className="border-t border-purple-500/20 pt-8">
-            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-              <div className="text-purple-100/60 text-sm">
+          <div className="border-t border-purple-500/20 pt-6 sm:pt-8">
+            <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+              <div className="text-purple-100/60 text-sm text-center sm:text-left">
                 © 2024 CallGenie. All rights reserved.
               </div>
-              <div className="flex items-center space-x-4">
+              <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
                 <span className="text-purple-100/60 text-sm">Follow us:</span>
                 <div className="flex space-x-3">
-                  <a href="https://www.linkedin.com/company/supernovaind/" target="_blank" rel="noopener noreferrer" className="text-purple-100/60 hover:text-white transition-colors">
+                  <a href="https://www.linkedin.com/company/supernovaind/" target="_blank" rel="noopener noreferrer" className="text-purple-100/60 hover:text-white transition-colors p-1">
                     <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                     </svg>
                   </a>
-                  <a href="https://www.instagram.com/supernova_ind_?utm_source=qr&igsh=MWh0dmFlYjM4dWRjNw==" target="_blank" rel="noopener noreferrer" className="text-purple-100/60 hover:text-white transition-colors">
+                  <a href="https://www.instagram.com/supernova_ind_?utm_source=qr&igsh=MWh0dmFlYjM4dWRjNw==" target="_blank" rel="noopener noreferrer" className="text-purple-100/60 hover:text-white transition-colors p-1">
                     <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
                     </svg>
